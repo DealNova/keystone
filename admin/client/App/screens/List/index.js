@@ -26,6 +26,7 @@ import ListManagement from './components/ListManagement';
 import ConfirmationDialog from '../../shared/ConfirmationDialog';
 import CreateForm from '../../shared/CreateForm';
 import FlashMessages from '../../shared/FlashMessages';
+import ImportButton from '../../shared/ImportButton';
 import ItemsTable from './components/ItemsTable/ItemsTable';
 import UpdateForm from './components/UpdateForm';
 import { plural as pluralize } from '../../../utils/string';
@@ -417,6 +418,13 @@ const ListView = React.createClass({
 			</GlyphButton>
 		) : null;
 
+		// display the import button if create is allowed
+		const importButton = !currentList.nocreate ? (
+			<div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+				<ImportButton currentPath={currentList.path} />
+			</div>
+		) : null;
+
 		return (
 			<Container>
 				{(this.props.error) ? (
@@ -428,6 +436,7 @@ const ListView = React.createClass({
 				) : null}
 				<BlankState heading={`No ${this.props.currentList.plural.toLowerCase()} found...`} style={{ marginTop: 40 }}>
 					{button}
+					{importButton}
 				</BlankState>
 			</Container>
 		);
