@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
+import ImportButton from '../../../shared/ImportButton';
 
 /**
  * Displays information about a list and lets you create a new one.
@@ -17,6 +18,17 @@ var ListTile = React.createClass({
 		var opts = {
 			'data-list-path': this.props.path,
 		};
+		const actions = [
+			<Link
+				to={this.props.href + '?create'}
+				className="dashboard-group__list-create octicon octicon-plus"
+				style={{ top: '10px' }}
+				title="Create"
+				tabIndex="-1"
+				key="create-action"
+						/>,
+			<ImportButton mini currentPath={this.props.path} key="import-action"/>,
+		];
 		return (
 			<div className="dashboard-group__list" {...opts}>
 				<span className="dashboard-group__list-inner">
@@ -26,14 +38,7 @@ var ListTile = React.createClass({
 					</Link>
 					{/* If we want to create a new list, we append ?create, which opens the
 						create form on the new page! */}
-					{(!this.props.hideCreateButton) && (
-						<Link
-							to={this.props.href + '?create'}
-							className="dashboard-group__list-create octicon octicon-plus"
-							title="Create"
-							tabIndex="-1"
-						/>
-					)}
+					{(!this.props.hideCreateButton) && actions}
 				</span>
 			</div>
 		);

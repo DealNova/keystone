@@ -151,7 +151,7 @@ var ItemView = React.createClass({
 				</Center>
 			);
 		}
-
+		console.log('ITEM CALLED', this);
 		// When we have the data, render the item view with it
 		return (
 			<div data-screen-id="item">

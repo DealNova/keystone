@@ -7,7 +7,18 @@ import {
 	Spinner,
 } from '../../../elemental';
 
+import ImportButton from '../../../shared/ImportButton';
+
+function ButtonDivider ({ style, ...props }) {
+	props.style = {
+		borderLeft: '1px solid rgba(0, 0, 0, 0.1)',
+		paddingLeft: '0.75em',
+		...style,
+	};
+}
+
 function ListManagement ({
+	list,
 	checkedItemCount,
 	handleDelete,
 	handleSelect,
@@ -17,6 +28,7 @@ function ListManagement ({
 	itemsPerPage,
 	nodelete,
 	noedit,
+	createIsAvailable,
 	selectAllItemsLoading,
 	...props
 }) {
@@ -91,6 +103,12 @@ function ListManagement ({
 						Manage
 					</Button>
 				</Section>
+				{createIsAvailable
+				&& <Section>
+					<ImportButton
+						currentList={list}
+							/>
+				</Section>}
 				{selectButtons}
 				{actionButtons}
 				{selectedCountText}
