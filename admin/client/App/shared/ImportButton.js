@@ -89,13 +89,15 @@ import { connect } from 'react-redux';
 		for (let i=0; i< currentList.columns.length; i+=1){
 			const col = currentList.columns[i];
 			titleMap[col.title] = col.path;
-			if (col.field.type === 'relationship'){
-				isRelationship[col.path] = true;
-				fetchList.push(col.field.refList.path);
-				fetchListMap[col.field.refList.path] = col.path;
-			} else {
-				isRelationship[col.path] = false;
+			if(typeof col.field !== 'undefined'){
+				if (col.field.type === 'relationship'){
+					isRelationship[col.path] = true;
+					fetchList.push(col.field.refList.path);
+					fetchListMap[col.field.refList.path] = col.path;
+				} else {
+					isRelationship[col.path] = false;
 			}
+}
 		}
 		const self = this;
 		const promises = fetchList.map(path =>{
@@ -146,7 +148,9 @@ import { connect } from 'react-redux';
 		Papa.parse(file, {
 			header: true,
 			dynamicTyping: true,
-			// TODO:  We might have issues with big files.  I need to refactor this into a better version of itself.
+			// TODO:  We might have issues with big files using all the memory.
+			// Unfortunately every possible solution involves huge RAM usage anyways if the CSV is big
+			// In fact, stepping threw the rows and dispatching PUTs might make RAM usage worse
 			complete(result) {
 				let errorText = null;
 				const translatedData = [];
