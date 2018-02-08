@@ -53,7 +53,7 @@ var Footer = React.createClass({
 						className={css(classes.link)}
 						tabIndex="-1"
 					>
-						KeystoneJS
+						SellOps
 					</a>
 					<span> version {version}.</span>
 					{this.renderUser()}
