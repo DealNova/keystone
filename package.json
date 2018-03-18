@@ -44,6 +44,7 @@
     "express-request-language": "1.1.12",
     "express-session": "1.15.6",
     "expression-match": "0.0.17",
+    "form-data": "^2.3.2",
     "fs-extra": "1.0.0",
     "glamor": "^2.20.25",
     "grappling-hook": "3.0.0",
@@ -180,6 +181,7 @@
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha",
     "posttest-cov": "if [ -n \"$CODECLIMATE_REPO_TOKEN\" ]; then codeclimate-test-reporter < coverage/lcov.info; fi",
     "clean": "rimraf ./coverage",
+    "clean-admin": "rimraf admin/bundles/",
     "fields-explorer": "node ./fields/explorer/server.js"
   }
 }
