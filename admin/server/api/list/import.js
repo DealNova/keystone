@@ -16,7 +16,12 @@ module.exports = function (req, res) {
 		const onFinish = () => {
 			cbCount -= 1;
 			if (cbCount === 0) {
-				res.status(status).end();
+				res.status(status);
+				if (error !== null) {
+					res.send(error).end();
+				} else {
+					res.end();
+				}
 			}
 		};
 		const updateWrapper = (oldItem, newItem) => {
