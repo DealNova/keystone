@@ -15,7 +15,7 @@ module.exports = function createDynamicRouter (keystone) {
 	var SignoutRoute = require('../routes/signout');
 
 	// Use bodyParser and multer to parse request bodies and file uploads
-	router.use(bodyParser.json({}));
+	router.use(bodyParser.json({ limit: '10mb' }));
 	router.use(bodyParser.urlencoded({ extended: true }));
 	router.use(multer({ includeEmptyFields: true }));
 
@@ -26,7 +26,10 @@ module.exports = function createDynamicRouter (keystone) {
 	});
 
 	if (keystone.get('healthchecks')) {
-		router.use('/server-health', require('./createHealthchecksHandler')(keystone));
+		router.use(
+			'/server-health',
+			require('./createHealthchecksHandler')(keystone)
+		);
 	}
 
 	// Init API request helpers
@@ -45,7 +48,10 @@ module.exports = function createDynamicRouter (keystone) {
 	if (keystone.get('auth') === true) {
 		// TODO: poor separation of concerns; settings should be defaulted elsewhere
 		if (!keystone.get('signout url')) {
-			keystone.set('signout url', '/' + keystone.get('admin path') + '/signout');
+			keystone.set(
+				'signout url',
+				'/' + keystone.get('admin path') + '/signout'
+			);
 		}
 		if (!keystone.get('signin url')) {
 			keystone.set('signin url', '/' + keystone.get('admin path') + '/signin');
@@ -67,7 +73,10 @@ module.exports = function createDynamicRouter (keystone) {
 	// TODO: poor separation of concerns; should / could this happen elsewhere?
 	if (keystone.get('cloudinary config')) {
 		router.get('/api/cloudinary/get', require('../api/cloudinary').get);
-		router.get('/api/cloudinary/autocomplete', require('../api/cloudinary').autocomplete);
+		router.get(
+			'/api/cloudinary/autocomplete',
+			require('../api/cloudinary').autocomplete
+		);
 		router.post('/api/cloudinary/upload', require('../api/cloudinary').upload);
 	}
 	if (keystone.get('s3 config')) {
@@ -80,15 +89,24 @@ module.exports = function createDynamicRouter (keystone) {
 	// lists
 	router.all('/api/counts', require('../api/counts'));
 	router.get('/api/:list', initList, require('../api/list/get'));
-	router.get('/api/:list/:format(export.csv|export.json)', initList, require('../api/list/download'));
+	router.get(
+		'/api/:list/:format(export.csv|export.json)',
+		initList,
+		require('../api/list/download')
+	);
 	router.post('/api/:list/create', initList, require('../api/list/create'));
 	router.post('/api/:list/update', initList, require('../api/list/update'));
 	router.post('/api/:list/delete', initList, require('../api/list/delete'));
+	router.post('/api/:list/import', initList, require('../api/list/import'));
 	// items
 	router.get('/api/:list/:id', initList, require('../api/item/get'));
 	router.post('/api/:list/:id', initList, require('../api/item/update'));
 	router.post('/api/:list/:id/delete', initList, require('../api/list/delete'));
-	router.post('/api/:list/:id/sortOrder/:sortOrder/:newOrder', initList, require('../api/item/sortOrder'));
+	router.post(
+		'/api/:list/:id/sortOrder/:sortOrder/:newOrder',
+		initList,
+		require('../api/item/sortOrder')
+	);
 
 	// #6: List Routes
 	router.all('/:list/:page([0-9]{1,5})?', IndexRoute);
