@@ -4,13 +4,14 @@ import React from "react";
 import { Modal, Button, Alert } from "../elemental";
 import Dropzone from "react-dropzone";
 import Papa from "papaparse";
-import { connect } from 'react-redux';
+const xhr = require("xhr");
+import { connect } from "react-redux";
 
- class ImportButton extends React.Component {
-	constructor(props){
+class ImportButton extends React.Component {
+	constructor(props) {
 		super(props);
 		let currentList = props.currentList;
-		if(!currentList){
+		if (!currentList) {
 			currentList = props.lists.data[props.currentPath];
 		}
 		this.state = {
@@ -21,125 +22,133 @@ import { connect } from 'react-redux';
 			submitActive: false,
 			postDialog: false,
 			submitErrors: false,
-			postDialogText: '',
-			currentList,
+			postDialogText: "",
+			currentList
 		};
 	}
 
 	applyCSV = () => {
 		const list = this.state.currentList;
-		this.requestsLeft =  this.state.csvData.length;
-		this.submitErrors  = [];
-		for (let j=0; j< this.state.csvData.length; j+=1){
-		const data = this.state.csvData[j];
-		const emptyForm = new FormData();
-		const nameField = list.nameField.path;
-		const newName = data[nameField];
-		const dataKeys = Object.keys(data);
-		for (let i=0; i< dataKeys.length; i+=1){
-			const key = dataKeys[i];
-			emptyForm.append(key, data[key]);
-		}
-		emptyForm.append('fields', data);
-		const currentPath = this.state.currentList.path;
-		const currentData = this.props.listData[currentPath];
-		let itemID = null;
-		const items = currentData.items.results;
-		for (let i=0; i<items.length; i+=1){
-			if(items[i].name === newName){
-				itemID = items[i].id;
+		this.submitErrors = [];
+		this.items = {};
+		for (let j = 0; j < this.state.csvData.length; j += 1) {
+			const data = this.state.csvData[j];
+			const itemData = {};
+			const nameField = list.nameField.path;
+			const newName = data[nameField];
+			const dataKeys = Object.keys(data);
+			for (let i = 0; i < dataKeys.length; i += 1) {
+				const key = dataKeys[i];
+				itemData[key] = data[key];
 			}
-		}
+			itemData["fields"] = data;
+			const currentPath = this.state.currentList.path;
+			const currentData = this.props.listData[currentPath];
+			let itemID = null;
+			const items = currentData.items.results;
+			for (let i = 0; i < items.length; i += 1) {
+				if (items[i].name === newName) {
+					itemID = items[i].id;
+				}
+			}
+			if (!itemID) {
+				itemData["_id"] = itemID;
+			}
 
-		if(!itemID){
-		list.createItem(emptyForm, (err, data) => {
-			this.requestCounter(data, err);
-		});
-		} else {
+			this.items[j] = itemData;
+		}
+		const jsonString = JSON.stringify(this.items);
+		const formData = new FormData();
+		formData.append("items", jsonString);
+		xhr(
+			{
+				url: `${Keystone.adminPath}/api/${this.state.currentList.path}/import`,
+				method: "POST",
+				headers: Object.assign({}, Keystone.csrf.header),
+				body: formData
+			},
+			(err, resp, data) => {
+				let error = err;
+				const postDialogText = error ? error : "Completed successfully.";
+				this.setState({
+					submitErrors: error,
+					postDialogText,
+					postDialog: true
+				});
+			}
+		);
+	};
 
-		list.updateItem(itemID, emptyForm, (err, data) => {
-			this.requestCounter(data, err);
-		});
-		}
-	}
-	}
-
-	requestCounter = (data, err) => {
-		this.requestsLeft -= 1;
-		const leftReq = this.requestsLeft;
-		if(err){
-			console.log(err);
-			this.submitErrors.push(err);
-		}
-		if (leftReq === 0) {
-			const error = this.submitErrors.length > 0 ? 'Errors occured while submitting data.' : null;
-			const postDialogText = error ? error : 'Completed successfully.';
-			this.setState({submitErrors: error, postDialogText, postDialog: true});
-			this.handleClose();
-		}
-	}
 	getFieldData = () => {
 		const { currentList } = this.state;
 		let titleMap = {};
-		let isRelationship = {}
-		let relationshipData = {}
+		let isRelationship = {};
+		let relationshipData = {};
 		let errorsXHR = [];
 		let fetchList = [];
 		let fetchListMap = {};
-		for (let i=0; i< currentList.columns.length; i+=1){
+		for (let i = 0; i < currentList.columns.length; i += 1) {
 			const col = currentList.columns[i];
 			titleMap[col.title] = col.path;
-			if(typeof col.field !== 'undefined'){
-				if (col.field.type === 'relationship'){
+			if (typeof col.field !== "undefined") {
+				if (col.field.type === "relationship") {
 					isRelationship[col.path] = true;
 					fetchList.push(col.field.refList.path);
 					fetchListMap[col.field.refList.path] = col.path;
 				} else {
 					isRelationship[col.path] = false;
+				}
 			}
-}
 		}
 		const self = this;
-		const promises = fetchList.map(path =>{
+		const promises = fetchList.map(path => {
 			const promise = new Promise(function(resolve, reject) {
 				var xmlRequest = new XMLHttpRequest();
 				xmlRequest.onreadystatechange = function() {
-						if (xmlRequest.readyState == 4) {
-								if (xmlRequest.status == 200)
-										resolve(xmlRequest.responseText);
-								else
-										reject(self.showError('WARNING! Failed fetching related database entries!'));
-						}
-				}
-				xmlRequest.open("GET", Keystone.adminPath + '/api/' + path, true);
-				xmlRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					if (xmlRequest.readyState == 4) {
+						if (xmlRequest.status == 200) resolve(xmlRequest.responseText);
+						else
+							reject(
+								self.showError(
+									"WARNING! Failed fetching related database entries!"
+								)
+							);
+					}
+				};
+				xmlRequest.open("GET", Keystone.adminPath + "/api/" + path, true);
+				xmlRequest.setRequestHeader(
+					"Content-Type",
+					"application/x-www-form-urlencoded"
+				);
 				xmlRequest.setRequestHeader("Accept", "application/json");
 				xmlRequest.send(null);
-		})
-		return promise.then(JSON.parse).then((result)=>{
-			let relationshipMap = {}
-			for (let i=0; i< result.results.length; i+=1){
-				const item = result.results[i];
-				relationshipMap[item.name] = item.id;
-			}
-			const realPath = fetchListMap[path];
-			relationshipData[realPath] = relationshipMap;
-			return result;
+			});
+			return promise.then(JSON.parse).then(result => {
+				let relationshipMap = {};
+				for (let i = 0; i < result.results.length; i += 1) {
+					const item = result.results[i];
+					relationshipMap[item.name] = item.id;
+				}
+				const realPath = fetchListMap[path];
+				relationshipData[realPath] = relationshipMap;
+				return result;
+			});
 		});
+		Promise.all(promises).then(function() {
+			self.setState({
+				fieldData: {
+					titleMap,
+					isRelationship,
+					errorsXHR,
+					relationshipData
+				}
+			});
 		});
-				Promise.all(promises).then(function() {
-				self.setState({fieldData: {
-			titleMap,
-			isRelationship,
-			errorsXHR,
-			relationshipData
-	}})
-		});
-}
+	};
 
 	handlePostDialogClose = () => {
 		// You can't close it.
-	}
+	};
 
 	// The file is being parsed and translated after being dropped (or opened).
 	onDrop = acceptedFiles => {
@@ -167,7 +176,7 @@ import { connect } from 'react-redux';
 					for (let j = 0; j < rowKeys.length; j += 1) {
 						const title = rowKeys[j];
 						// In case of missing title configuration, use the titles themselves as paths.
-							const path = titleMap[title];
+						const path = titleMap[title];
 						if (titleMap.hasOwnProperty(title)) {
 							paths.push(path);
 							translatedRow[path] = row[title];
@@ -177,12 +186,14 @@ import { connect } from 'react-redux';
 							}
 						}
 						// Check if the field is a relationship, and fix the data correspondingly
-						if(isRelationShip[path]){
+						if (isRelationShip[path]) {
 							const relationshipLabel = translatedRow[path];
-							let realName = fieldData.relationshipData[path][relationshipLabel];
-							if (realName === undefined){
-								errorText = 'WARNING! References to other models will be omitted because of missing records!';
-								realName= '';
+							let realName =
+								fieldData.relationshipData[path][relationshipLabel];
+							if (realName === undefined) {
+								errorText =
+									"WARNING! References to other models will be omitted because of missing records!";
+								realName = "";
 							}
 							translatedRow[path] = realName;
 						}
@@ -197,20 +208,20 @@ import { connect } from 'react-redux';
 					file,
 					csvData: translatedData,
 					error: errorText,
-					submitActive: true,
+					submitActive: true
 				});
 			}
 		});
 	};
 
 	onPostModalButton = () => {
-		if(this.props.rerenderCallback){
+		if (this.props.rerenderCallback) {
 			this.props.rerenderCallback();
 		} else {
 			window.location.reload();
-			this.setState({postDialog: false});
+			this.setState({ postDialog: false });
 		}
-	}
+	};
 	onDropRejected = () => {
 		this.showError("File loading rejected.");
 	};
@@ -219,7 +230,7 @@ import { connect } from 'react-redux';
 		// Shows a red error instead of instruction in case something goes wrong.
 		this.setState({ error, submitActive: false });
 	};
-	handleOpen = (e) => {
+	handleOpen = e => {
 		e.preventDefault();
 		this.setState({ open: true });
 		this.getFieldData();
@@ -232,18 +243,22 @@ import { connect } from 'react-redux';
 	render() {
 		const { file, error, csvData } = this.state;
 		const actions = [
-			<Button onClick={this.handleClose} key='actions-cancel' style={{marginLeft: 'auto'}}>
+			<Button
+				onClick={this.handleClose}
+				key="actions-cancel"
+				style={{ marginLeft: "auto" }}
+			>
 				Cancel
 			</Button>,
 			// This is the button responsible for pushing the data to the server.
 			<Button
-					color="primary"
-					disabled = {!this.state.submitActive}
-					onClick={this.applyCSV}
-					key='actions-submit'
-					style={{marginLeft: '10px'}}
+				color="primary"
+				disabled={!this.state.submitActive}
+				onClick={this.applyCSV}
+				key="actions-submit"
+				style={{ marginLeft: "10px" }}
 			>
-					Submit
+				Submit
 			</Button>
 		];
 		const dropZoneStyle = {
@@ -252,7 +267,7 @@ import { connect } from 'react-redux';
 			padding: "10px",
 			textAlign: "center",
 			backgroundColor: "rgba(153,153,153,0.2)",
-			margin: '10px',
+			margin: "10px"
 		};
 		// Error/hint colors and texts are determined here
 		let paragraphColor = error ? "red" : "rgba(0,0,0,0.6)";
@@ -263,30 +278,32 @@ import { connect } from 'react-redux';
 
 		// Sometimes we need only an icon
 		const mainButton = (
-				<Button
-					color="primary"
-					onClick={this.handleOpen}
-					style={{ marginRight: "20px" }}
-				>
-					Import
-				</Button>);
-				const mainIcon = (<a
-					onClick={this.handleOpen}
-					className='dashboard-group__list-create octicon octicon-cloud-upload'
-					style={{position: 'absolute', top: '36px'}}
-					title='Import'
-				>
-				</a>);
+			<Button
+				color="primary"
+				onClick={this.handleOpen}
+				style={{ marginRight: "20px" }}
+			>
+				Import
+			</Button>
+		);
+		const mainIcon = (
+			<a
+				onClick={this.handleOpen}
+				className="dashboard-group__list-create octicon octicon-cloud-upload"
+				style={{ position: "absolute", top: "36px" }}
+				title="Import"
+			/>
+		);
 		return (
-			<div className={this.props.mini ? 'dashboard-group__list-inner' : '' }>
-				{this.props.mini ? mainIcon: mainButton}
+			<div className={this.props.mini ? "dashboard-group__list-inner" : ""}>
+				{this.props.mini ? mainIcon : mainButton}
 				<Modal.Dialog
 					isOpen={this.state.open}
 					onCancel={this.handleClose}
 					onClose={this.handleClose}
 					backdropClosesModal
 				>
-					<Modal.Header text="Import your data"/>
+					<Modal.Header text="Import your data" />
 					<section>
 						<div className="dropzone">
 							<Dropzone
@@ -320,18 +337,18 @@ import { connect } from 'react-redux';
 					isOpen={this.state.postDialog}
 					onCancel={this.handlePostDialogClose}
 					onClose={this.handlePostDialogClose}
-					backdropClosesModal = {this.props.rerenderCallback ? false : true}
+					backdropClosesModal={this.props.rerenderCallback ? false : true}
 				>
-								<Modal.Body>
-									<Alert color={this.state.submitErrors ? 'danger' : 'success'}>
-									<p>{this.state.postDialogText}</p>
-									</Alert>
-								</Modal.Body>
-								<Modal.Footer>
-									<Button style={{margin: 'auto'}} onClick={this.onPostModalButton}>
-										{ this.props.rerenderCallback ? 'Reload Data' : 'Close'}
-									</Button>
-								</Modal.Footer>
+					<Modal.Body>
+						<Alert color={this.state.submitErrors ? "danger" : "success"}>
+							<p>{this.state.postDialogText}</p>
+						</Alert>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button style={{ margin: "auto" }} onClick={this.onPostModalButton}>
+							{this.props.rerenderCallback ? "Reload Data" : "Close"}
+						</Button>
+					</Modal.Footer>
 				</Modal.Dialog>
 			</div>
 		);
@@ -340,5 +357,5 @@ import { connect } from 'react-redux';
 
 export default connect(state => ({
 	listData: state.lists.data,
-	lists: state.lists,
+	lists: state.lists
 }))(ImportButton);
