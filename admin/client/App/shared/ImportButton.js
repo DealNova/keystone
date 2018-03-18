@@ -241,6 +241,9 @@ class ImportButton extends React.Component {
 	};
 
 	render() {
+		if (!this.props.lists.currentList.csvImport) {
+			return null;
+		}
 		const { file, error, csvData } = this.state;
 		const actions = [
 			<Button
