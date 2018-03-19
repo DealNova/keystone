@@ -28,38 +28,10 @@ class ImportButton extends React.Component {
 	}
 
 	applyCSV = () => {
-		const list = this.state.currentList;
-		this.submitErrors = [];
-		this.items = {};
-		for (let j = 0; j < this.state.csvData.length; j += 1) {
-			const data = this.state.csvData[j];
-			const itemData = {};
-			const nameField = list.nameField.path;
-			const newName = data[nameField];
-			const dataKeys = Object.keys(data);
-			for (let i = 0; i < dataKeys.length; i += 1) {
-				const key = dataKeys[i];
-				itemData[key] = data[key];
-			}
-			itemData["fields"] = data;
-			const currentPath = this.state.currentList.path;
-			const currentData = this.props.listData[currentPath];
-			let itemID = null;
-			const items = currentData.items.results;
-			for (let i = 0; i < items.length; i += 1) {
-				if (items[i].name === newName) {
-					itemID = items[i].id;
-				}
-			}
-			if (!itemID) {
-				itemData["_id"] = itemID;
-			}
-
-			this.items[j] = itemData;
-		}
-		const jsonString = JSON.stringify(this.items);
 		const formData = new FormData();
-		formData.append("items", jsonString);
+		formData.append("file", this.state.file);
+		formData.append("fieldData", JSON.stringify(this.state.fieldData));
+		formData.append("currentListKey", this.state.currentList.key);
 		xhr(
 			{
 				url: `${Keystone.adminPath}/api/${this.state.currentList.path}/import`,
@@ -152,66 +124,19 @@ class ImportButton extends React.Component {
 
 	// The file is being parsed and translated after being dropped (or opened).
 	onDrop = acceptedFiles => {
-		const file = acceptedFiles[0];
-		const self = this;
-		Papa.parse(file, {
-			header: true,
-			dynamicTyping: true,
-			// TODO:  We might have issues with big files using all the memory.
-			// Unfortunately every possible solution involves huge RAM usage anyways if the CSV is big
-			// In fact, stepping threw the rows and dispatching PUTs might make RAM usage worse
-			complete(result) {
-				let errorText = null;
-				const translatedData = [];
-				const data = result.data;
-				for (let i = 0; i < data.length; i += 1) {
-					const row = data[i];
-					const translatedRow = {};
-					const rowKeys = Object.keys(row);
-					let emptyFields = 0;
-					const paths = [];
-					const fieldData = self.state.fieldData;
-					const titleMap = fieldData.titleMap;
-					const isRelationShip = fieldData.isRelationship;
-					for (let j = 0; j < rowKeys.length; j += 1) {
-						const title = rowKeys[j];
-						// In case of missing title configuration, use the titles themselves as paths.
-						const path = titleMap[title];
-						if (titleMap.hasOwnProperty(title)) {
-							paths.push(path);
-							translatedRow[path] = row[title];
-							// Count the number of empty properties.
-							if (!row[title]) {
-								emptyFields += 1;
-							}
-						}
-						// Check if the field is a relationship, and fix the data correspondingly
-						if (isRelationShip[path]) {
-							const relationshipLabel = translatedRow[path];
-							let realName =
-								fieldData.relationshipData[path][relationshipLabel];
-							if (realName === undefined) {
-								errorText =
-									"WARNING! References to other models will be omitted because of missing records!";
-								realName = "";
-							}
-							translatedRow[path] = realName;
-						}
-					}
-					// If all the properties are empty, ignore the line.
-					// CSV files commonly leave empty lines in the end of the document
-					if (emptyFields !== paths.length) {
-						translatedData.push(translatedRow);
-					}
-				}
-				self.setState({
-					file,
-					csvData: translatedData,
-					error: errorText,
-					submitActive: true
-				});
-			}
-		});
+		const fileData = acceptedFiles[0];
+		const reader = new FileReader();
+		reader.onload = () => {
+			const binaryFile = reader.result;
+			this.setState({
+				file: binaryFile,
+				fileData,
+				csvData: 1,
+				error: null,
+				submitActive: true
+			});
+		};
+		reader.readAsBinaryString(fileData);
 	};
 
 	onPostModalButton = () => {
@@ -244,7 +169,7 @@ class ImportButton extends React.Component {
 		if (this.state.currentList !== null && !this.state.currentList.csvImport) {
 			return null;
 		}
-		const { file, error, csvData } = this.state;
+		const { file, fileData, error, csvData } = this.state;
 		const actions = [
 			<Button
 				onClick={this.handleClose}
@@ -325,10 +250,10 @@ class ImportButton extends React.Component {
 								{file && (
 									<li
 										key={
-											file.name // Shows the information about the file
+											fileData.name // Shows the information about the file
 										}
 									>
-										{file.name} - {file.size} bytes
+										{fileData.name} - {fileData.size} bytes
 									</li>
 								)}
 							</ul>
