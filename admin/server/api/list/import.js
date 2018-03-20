@@ -22,15 +22,14 @@ const parseCSV = (file, fieldData, callback) => {
 				for (let j = 0; j < rowKeys.length; j += 1) {
 					const title = rowKeys[j];
 					// In case of missing title configuration, use the titles themselves as paths.
-					const path = titleMap[title];
-					if (titleMap.hasOwnProperty(title)) {
-						paths.push(path);
-						translatedRow[path] = row[title];
-						// Count the number of empty properties.
-						if (!row[title]) {
-							emptyFields += 1;
-						}
+					const path = titleMap[title] || title;
+					paths.push(path);
+					translatedRow[path] = row[title];
+					// Count the number of empty properties.
+					if (!row[title]) {
+						emptyFields += 1;
 					}
+
 					// Check if the field is a relationship, and fix the data correspondingly
 					if (isRelationShip[path]) {
 						const relationshipLabel = translatedRow[path];
@@ -42,6 +41,11 @@ const parseCSV = (file, fieldData, callback) => {
 							realName = '';
 						}
 						translatedRow[path] = realName;
+					}
+					// Make sure the ID has the correct path if exists
+					if (typeof translatedRow.id !== 'undefined') {
+						translatedRow._id = translatedRow.id;
+						delete translatedRow.id;
 					}
 				}
 				// If all the properties are empty, ignore the line.
@@ -55,58 +59,86 @@ const parseCSV = (file, fieldData, callback) => {
 	});
 };
 
-const fixDataPaths = (translatedData, listData) => {
-	const finalItems = {};
-	for (let j = 0; j < translatedData.length; j += 1) {
-		const data = translatedData[j];
-		const itemData = {};
-		const dataKeys = Object.keys(data);
-		for (let i = 0; i < dataKeys.length; i += 1) {
-			const key = dataKeys[i];
-			itemData[key] = data[key];
+const findItemByFields = (currentData, fields) => {
+	return currentData.find(oldItem => {
+		Object.keys(fields).forEach(fieldName => {
+			const value = fields[fieldName];
+			if (oldItem[fieldName] !== value) return false;
+		});
+		return true;
+	});
+};
+const fixDataPaths = (translatedData, fieldData, currentList, req) => {
+	return req.list.model.find().then(currentData => {
+		const autoKeySettings = currentList.autokey;
+		const addFieldsAndID = data => {
+			const itemData = Object.assign({}, data);
+			itemData.fields = data;
+			if (typeof autoKeySettings !== 'undefined') {
+				const fromFields = autoKeySettings.from;
+				const searchFields = {};
+				fromFields.forEach(fieldData => {
+					const path = fieldData.path;
+					searchFields[path] = itemData[path];
+				});
+				const existingItem = findItemByFields(currentData, searchFields);
+				if (typeof existingItem !== 'undefined') {
+					itemData._id = existingItem._id;
+				}
+			}
+			return itemData;
+		};
+		const allItems = [];
+		for (let j = 0; j < translatedData.length; j += 1) {
+			const data = translatedData[j];
+			allItems.push(addFieldsAndID(data));
 		}
-		itemData.fields = data;
-		finalItems[j] = itemData;
-	}
-	return finalItems;
+		return allItems;
+	});
 };
 
 const applyUpdate = (items, res, req) => {
 	let cbCount = 0;
 	let status = 200;
 	let error = null;
-	Object.keys(items).forEach(key => {
-		const newItem = items[key];
-		const onFinish = () => {
-			cbCount -= 1;
-			if (cbCount === 0) {
-				res.status(status);
-				if (error !== null) {
-					res.send(error).end();
-				} else {
-					res.end();
-				}
+	const onFinish = () => {
+		cbCount -= 1;
+		if (cbCount === 0) {
+			res.status(status);
+			if (error !== null) {
+				res.send(error).end();
+			} else {
+				res.end();
 			}
-		};
-		const updateWrapper = (oldItem, newItem) => {
-			req.list.updateItem(
-				oldItem !== null ? oldItem : new req.list.model(),
-				new FormData(newItem),
-				{
-					ignoreNoEdit: true,
-					user: req.user,
-				},
-				function (err) {
-					if (err) {
-						status = err.error === 'validation errors' ? 400 : 500;
-						error = err.error === 'database error' ? err.detail : err;
-					}
-					onFinish();
+		}
+	};
+	const updateWrapper = (oldItem, newItem) => {
+		req.list.updateItem(
+			oldItem !== null ? oldItem : new req.list.model(),
+			new FormData(newItem),
+			{
+				ignoreNoEdit: true,
+				user: req.user,
+			},
+			function (err) {
+				if (err) {
+					status = err.error === 'validation errors' ? 400 : 500;
+					error = err.error === 'database error' ? err.detail : err;
 				}
-			);
-		};
+				onFinish();
+			}
+		);
+	};
+	items.forEach(newItem => {
 		cbCount += 1;
-		updateWrapper(null, newItem);
+		if (typeof newItem._id !== 'undefined') {
+			req.list.model.findById(newItem._id).then(oldItem => {
+				delete newItem._id;
+				updateWrapper(oldItem, newItem);
+			});
+		} else {
+			updateWrapper(null, newItem);
+		}
 	});
 };
 
@@ -117,9 +149,15 @@ module.exports = function (req, res) {
 	}
 	const file = req.body.file;
 	const fieldData = JSON.parse(req.body.fieldData);
-	const listData = keystone.lists;
+	const currentListKey = req.body.currentListKey;
 	parseCSV(file, fieldData, translatedData => {
-		const finalItems = fixDataPaths(translatedData, listData);
-		applyUpdate(finalItems, res, req);
+		fixDataPaths(
+			translatedData,
+			fieldData,
+			req.keystone.lists[currentListKey],
+			req
+		).then(itemList => {
+			applyUpdate(itemList, res, req);
+		});
 	});
 };
