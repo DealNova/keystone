@@ -61,11 +61,14 @@ const parseCSV = (file, fieldData, callback) => {
 
 const findItemByFields = (currentData, fields) => {
 	return currentData.find(oldItem => {
+		let isMatch = true;
 		Object.keys(fields).forEach(fieldName => {
 			const value = fields[fieldName];
-			if (oldItem[fieldName] !== value) return false;
+			if (oldItem[fieldName] !== value) {
+				isMatch = false;
+			}
 		});
-		return true;
+		return isMatch;
 	});
 };
 const fixDataPaths = (translatedData, fieldData, currentList, req) => {
@@ -78,7 +81,7 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 				const fromFields = autoKeySettings.from;
 				const searchFields = {};
 				fromFields.forEach(fieldData => {
-					const path = fieldData.path;
+					const path = fieldData.path.replace(/,/g, '');
 					searchFields[path] = itemData[path];
 				});
 				const existingItem = findItemByFields(currentData, searchFields);
