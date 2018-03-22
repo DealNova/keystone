@@ -161,12 +161,16 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 const applyUpdate = (items, res, req) => {
 	let cbCount = 0;
 	let taskID = 0;
+	let updateCount = 0;
+	let createCount = 0;
 	let status = 200;
 	let error = null;
 	const onFinish = () => {
 		cbCount -= 1;
 		if (cbCount === 0) {
 			res.status(status);
+			console.log(`CSV-Import: ${updateCount} items updated.`);
+			console.log(`CSV-Import: ${createCount} items created.`);
 			if (error !== null) {
 				res.send(error).end();
 			} else {
@@ -209,12 +213,14 @@ const applyUpdate = (items, res, req) => {
 		taskID += 1;
 		if (typeof newItem._id !== 'undefined') {
 			console.log(`CSV-Import: Updating ${newItem._id}. Task ${taskID}.`);
+			updateCount += 1;
 			req.list.model.findById(newItem._id).then(oldItem => {
 				delete newItem._id;
 				updateWrapper(oldItem, newItem, taskID);
 			});
 		} else {
 			console.log(`CSV-Import: Creating a new item. Task ${taskID}.`);
+			createCount += 1;
 			updateWrapper(null, newItem, taskID);
 		}
 	});
