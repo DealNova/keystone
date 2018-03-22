@@ -2,6 +2,7 @@ const FormData = require('form-data');
 const Papa = require('papaparse');
 const moment = require('moment');
 const fs = require('fs');
+const utils = require('keystone-utils');
 
 const parseCSV = (file, fileData, fieldData, callback) => {
 	Papa.parse(file, {
@@ -98,26 +99,52 @@ const findItemByFields = (currentData, searchFields, fieldData) => {
 		return isMatch;
 	});
 };
+
+const generateKey = (itemData, autoKeySettings) => {
+	const values = [];
+	autoKeySettings.from.forEach(ops => {
+		values.push(itemData[ops.path]);
+	});
+	return utils.slug(values.join(' '), null, {
+		locale: autoKeySettings.locale,
+	});
+};
+
 const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 	return req.list.model.find().then(currentData => {
 		const autoKeySettings = currentList.autokey;
+		// Generate key-> item mapping for fast access if !unique
+		let currentKeys = {};
+		if (!autoKeySettings.unique) {
+			const keyPath = autoKeySettings.path;
+			currentData.forEach(oldItem => {
+				currentKeys[oldItem[keyPath]] = oldItem;
+			});
+		}
 		const addFieldsAndID = data => {
 			const itemData = Object.assign({}, data);
 			itemData.fields = data;
 			if (typeof autoKeySettings !== 'undefined') {
-				const fromFields = autoKeySettings.from;
 				const searchFields = {};
-				fromFields.forEach(fieldData => {
-					const path = fieldData.path.replace(/,/g, '');
-					searchFields[path] = itemData[path];
-				});
-				const existingItem = findItemByFields(
-					currentData,
-					searchFields,
-					req.list.fields
-				);
-				if (typeof existingItem !== 'undefined') {
-					itemData._id = existingItem._id;
+				if (autoKeySettings.unique) {
+					autoKeySettings.from.forEach(fieldData => {
+						const path = fieldData.path.replace(/,/g, '');
+						searchFields[path] = itemData[path];
+					});
+					const existingItem = findItemByFields(
+						currentData,
+						searchFields,
+						req.list.fields
+					);
+					if (typeof existingItem !== 'undefined') {
+						itemData._id = existingItem._id;
+					}
+				} else {
+					// Assume key generation and check for an existing item
+					const newKey = generateKey(itemData, autoKeySettings);
+					if (typeof currentKeys[newKey] !== 'undefined') {
+						itemData._id = currentKeys[newKey]._id;
+					}
 				}
 			}
 			return itemData;
