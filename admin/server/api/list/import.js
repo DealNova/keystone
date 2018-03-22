@@ -1,5 +1,6 @@
 const FormData = require('form-data');
 const Papa = require('papaparse');
+const moment = require('moment');
 
 const parseCSV = (file, fieldData, callback) => {
 	Papa.parse(file, {
@@ -59,13 +60,27 @@ const parseCSV = (file, fieldData, callback) => {
 	});
 };
 
-const findItemByFields = (currentData, fields) => {
+const findItemByFields = (currentData, searchFields, fieldData) => {
 	return currentData.find(oldItem => {
 		let isMatch = true;
-		Object.keys(fields).forEach(fieldName => {
-			const value = fields[fieldName];
-			if (oldItem[fieldName] !== value) {
-				isMatch = false;
+		Object.keys(searchFields).forEach(fieldName => {
+			const newValue = searchFields[fieldName];
+			const oldValue = oldItem[fieldName];
+			if (oldValue !== newValue) {
+				// Double check if it's a date object
+				if (
+					fieldData[fieldName].type === 'date'
+					|| fieldData[fieldName].type === 'datetime'
+				) {
+					const defaultFormat = 'YYYY-MM-DD h:m:s a'; // To prevent deprecation warning by momentjs
+					const newDate = moment(newValue, defaultFormat);
+					const oldDate = moment(oldValue, defaultFormat);
+					if (!newDate.isSame(oldDate)) {
+						isMatch = false;
+					}
+				} else {
+					isMatch = false;
+				}
 			}
 		});
 		return isMatch;
@@ -84,7 +99,11 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 					const path = fieldData.path.replace(/,/g, '');
 					searchFields[path] = itemData[path];
 				});
-				const existingItem = findItemByFields(currentData, searchFields);
+				const existingItem = findItemByFields(
+					currentData,
+					searchFields,
+					req.list.fields
+				);
 				if (typeof existingItem !== 'undefined') {
 					itemData._id = existingItem._id;
 				}
@@ -102,6 +121,7 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 
 const applyUpdate = (items, res, req) => {
 	let cbCount = 0;
+	let taskID = 0;
 	let status = 200;
 	let error = null;
 	const onFinish = () => {
@@ -115,7 +135,7 @@ const applyUpdate = (items, res, req) => {
 			}
 		}
 	};
-	const updateWrapper = (oldItem, newItem) => {
+	const updateWrapper = (oldItem, newItem, taskID) => {
 		req.list.updateItem(
 			oldItem !== null ? oldItem : new req.list.model(),
 			new FormData(newItem),
@@ -129,11 +149,15 @@ const applyUpdate = (items, res, req) => {
 					error = err.error === 'database error' ? err.detail : err;
 					if (oldItem._id) {
 						console.log(
-							`CSV-Import: Error while updating ${oldItem.id}. ${err.error}`
+							`CSV-Import: Error while updating ${
+								oldItem.id
+							}. Task ${taskID}. ${err.error}`
 						);
 					} else {
 						console.log(
-							`CSV-Import: Error while creating a new item. ${err.error}`
+							`CSV-Import: Error while creating a new item. Task ${taskID}. ${
+								err.error
+							}`
 						);
 					}
 				}
@@ -143,15 +167,16 @@ const applyUpdate = (items, res, req) => {
 	};
 	items.forEach(newItem => {
 		cbCount += 1;
+		taskID += 1;
 		if (typeof newItem._id !== 'undefined') {
+			console.log(`CSV-Import: Updating ${newItem._id}. Task ${taskID}.`);
 			req.list.model.findById(newItem._id).then(oldItem => {
-				console.log(`CSV-Import: Updating ${newItem._id}`);
 				delete newItem._id;
-				updateWrapper(oldItem, newItem);
+				updateWrapper(oldItem, newItem, taskID);
 			});
 		} else {
-			console.log(`CSV-Import: Creating a new item.`);
-			updateWrapper(null, newItem);
+			console.log(`CSV-Import: Creating a new item. Task ${taskID}.`);
+			updateWrapper(null, newItem, taskID);
 		}
 	});
 };
