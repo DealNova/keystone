@@ -1,8 +1,9 @@
 const FormData = require('form-data');
 const Papa = require('papaparse');
 const moment = require('moment');
+const fs = require('fs');
 
-const parseCSV = (file, fieldData, callback) => {
+const parseCSV = (file, fileData, fieldData, callback) => {
 	Papa.parse(file, {
 		header: true,
 		dynamicTyping: true,
@@ -12,6 +13,11 @@ const parseCSV = (file, fieldData, callback) => {
 		complete (result) {
 			const translatedData = [];
 			const data = result.data;
+			console.log(
+				`CSV-Import: PapaParse detected ${data.length} items in the CSV file ${
+					fileData.originalname
+				}.`
+			);
 			for (let i = 0; i < data.length; i += 1) {
 				const row = data[i];
 				const translatedRow = {};
@@ -27,7 +33,7 @@ const parseCSV = (file, fieldData, callback) => {
 					paths.push(path);
 					translatedRow[path] = row[title];
 					// Count the number of empty properties.
-					if (!row[title]) {
+					if (typeof row[title] === 'undefined') {
 						emptyFields += 1;
 					}
 
@@ -53,6 +59,12 @@ const parseCSV = (file, fieldData, callback) => {
 				// CSV files commonly leave empty lines in the end of the document
 				if (emptyFields !== paths.length) {
 					translatedData.push(translatedRow);
+				} else {
+					console.log(
+						`CSV-Import: Removing a live due to it being empty. File: ${
+							fileData.originalname
+						}`
+					);
 				}
 			}
 			callback(translatedData);
@@ -186,10 +198,11 @@ module.exports = function (req, res) {
 	if (!keystone.security.csrf.validate(req)) {
 		return res.apiError(403, 'invalid csrf');
 	}
-	const file = req.body.file;
+	const fileData = req.files.csv;
+	const file = fs.readFileSync(fileData.path, 'utf8');
 	const fieldData = JSON.parse(req.body.fieldData);
 	const currentListKey = req.body.currentListKey;
-	parseCSV(file, fieldData, translatedData => {
+	parseCSV(file, fileData, fieldData, translatedData => {
 		fixDataPaths(
 			translatedData,
 			fieldData,

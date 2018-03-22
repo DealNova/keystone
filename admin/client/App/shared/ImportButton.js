@@ -29,7 +29,7 @@ class ImportButton extends React.Component {
 
 	applyCSV = () => {
 		const formData = new FormData();
-		formData.append("file", this.state.file);
+		formData.append("csv", this.state.fileData);
 		formData.append("fieldData", JSON.stringify(this.state.fieldData));
 		formData.append("currentListKey", this.state.currentList.key);
 		xhr(
@@ -125,18 +125,12 @@ class ImportButton extends React.Component {
 	// The file is being parsed and translated after being dropped (or opened).
 	onDrop = acceptedFiles => {
 		const fileData = acceptedFiles[0];
-		const reader = new FileReader();
-		reader.onload = () => {
-			const binaryFile = reader.result;
-			this.setState({
-				file: binaryFile,
-				fileData,
-				csvData: 1,
-				error: null,
-				submitActive: true
-			});
-		};
-		reader.readAsBinaryString(fileData);
+		this.setState({
+			fileData,
+			csvData: 1,
+			error: null,
+			submitActive: true
+		});
 	};
 
 	onPostModalButton = () => {
@@ -169,7 +163,7 @@ class ImportButton extends React.Component {
 		if (this.state.currentList !== null && !this.state.currentList.csvImport) {
 			return null;
 		}
-		const { file, fileData, error, csvData } = this.state;
+		const { fileData, error, csvData } = this.state;
 		const actions = [
 			<Button
 				onClick={this.handleClose}
@@ -199,8 +193,8 @@ class ImportButton extends React.Component {
 		};
 		// Error/hint colors and texts are determined here
 		let paragraphColor = error ? "red" : "rgba(0,0,0,0.6)";
-		paragraphColor = !error && file ? "green" : paragraphColor;
-		const paragraphStatus = file
+		paragraphColor = !error && fileData ? "green" : paragraphColor;
+		const paragraphStatus = fileData
 			? "File loaded! Press submit to apply changes."
 			: "Drop CSV file here, or click to select file to upload.";
 
@@ -247,7 +241,7 @@ class ImportButton extends React.Component {
 						<aside>
 							<h2>Selected file</h2>
 							<ul>
-								{file && (
+								{fileData && (
 									<li
 										key={
 											fileData.name // Shows the information about the file
