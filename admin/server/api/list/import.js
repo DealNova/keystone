@@ -127,6 +127,15 @@ const applyUpdate = (items, res, req) => {
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					error = err.error === 'database error' ? err.detail : err;
+					if (oldItem._id) {
+						console.log(
+							`CSV-Import: Error while updating ${oldItem.id}. ${err.error}`
+						);
+					} else {
+						console.log(
+							`CSV-Import: Error while creating a new item. ${err.error}`
+						);
+					}
 				}
 				onFinish();
 			}
@@ -136,10 +145,12 @@ const applyUpdate = (items, res, req) => {
 		cbCount += 1;
 		if (typeof newItem._id !== 'undefined') {
 			req.list.model.findById(newItem._id).then(oldItem => {
+				console.log(`CSV-Import: Updating ${newItem._id}`);
 				delete newItem._id;
 				updateWrapper(oldItem, newItem);
 			});
 		} else {
+			console.log(`CSV-Import: Creating a new item.`);
 			updateWrapper(null, newItem);
 		}
 	});
