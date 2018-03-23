@@ -52,7 +52,7 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 							);
 						} else {
 							console.log(
-								`CSV-Import: ${path} detected to be a relationship. Real ID: ${realID}.`
+								`CSV-Import: ${path}/${relationshipLabel} detected to be a relationship. Real ID: ${realID}.`
 							);
 						}
 						translatedRow[path] = realID;
