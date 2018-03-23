@@ -39,16 +39,23 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 					}
 
 					// Check if the field is a relationship, and fix the data correspondingly
-					if (isRelationShip[path]) {
+					if (typeof isRelationShip[path] !== 'undefined') {
 						const relationshipLabel = translatedRow[path];
-						let realName = fieldData.relationshipData[path][relationshipLabel];
-						if (realName === undefined) {
-							console.log(
-								'WARNING! References to other models will be omitted because of missing records!'
-							);
-							realName = '';
+						const realItem = isRelationShip[path][relationshipLabel];
+						let realID = null;
+						if (typeof realItem !== 'undefined') {
+							realID = realItem.id;
 						}
-						translatedRow[path] = realName;
+						if (realID === null) {
+							console.log(
+								`WARNING! References to other models will be omitted because of missing records for ${path}/${relationshipLabel}!`
+							);
+						} else {
+							console.log(
+								`CSV-Import: ${path} detected to be a relationship. Real ID: ${realID}.`
+							);
+						}
+						translatedRow[path] = realID;
 					}
 					// Make sure the ID has the correct path if exists
 					if (typeof translatedRow.id !== 'undefined') {
@@ -121,9 +128,7 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 				currentKeys[oldItem[keyPath]] = oldItem;
 			});
 		}
-		const addFieldsAndID = data => {
-			const itemData = Object.assign({}, data);
-			itemData.fields = data;
+		const addFieldsAndID = itemData => {
 			if (typeof autoKeySettings !== 'undefined') {
 				const searchFields = {};
 				if (autoKeySettings.unique) {
@@ -190,7 +195,7 @@ const applyUpdate = (items, res, req) => {
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					error = err.error === 'database error' ? err.detail : err;
-					if (oldItem._id) {
+					if (oldItem !== null && oldItem._id) {
 						console.log(
 							`CSV-Import: Error while updating ${
 								oldItem.id
@@ -226,6 +231,14 @@ const applyUpdate = (items, res, req) => {
 	});
 };
 
+const startImport = (file, fileData, fieldData, req, res) => {
+	parseCSV(file, fileData, fieldData, translatedData => {
+		fixDataPaths(translatedData, fieldData, req.list, req).then(itemList => {
+			applyUpdate(itemList, res, req);
+		});
+	});
+};
+
 module.exports = function (req, res) {
 	var keystone = req.keystone;
 	if (!keystone.security.csrf.validate(req)) {
@@ -233,16 +246,30 @@ module.exports = function (req, res) {
 	}
 	const fileData = req.files.csv;
 	const file = fs.readFileSync(fileData.path, 'utf8');
-	const fieldData = JSON.parse(req.body.fieldData);
-	const currentListKey = req.body.currentListKey;
-	parseCSV(file, fileData, fieldData, translatedData => {
-		fixDataPaths(
-			translatedData,
-			fieldData,
-			req.keystone.lists[currentListKey],
-			req
-		).then(itemList => {
-			applyUpdate(itemList, res, req);
-		});
+	const fieldData = { titleMap: {}, isRelationship: {} };
+	Object.keys(req.list.fields).forEach(fieldPath => {
+		fieldData.titleMap[fieldPath] = req.list.fields[fieldPath].label;
 	});
+	const relationshipFetches = [];
+	req.list.relationshipFields.forEach(relationshipField => {
+		const relatedList = req.keystone.lists[relationshipField.options.ref];
+		const fetchAction = relatedList.model.find().then(relatedListItems => {
+			const idMapping = {};
+			const mapKey = relatedList.mappings.name;
+			relatedListItems.forEach(item => {
+				idMapping[item[mapKey]] = item;
+			});
+			fieldData.isRelationship[relationshipField.path] = idMapping;
+			fieldData.isRelationship[relationshipField.label] = idMapping;
+			return true;
+		});
+		relationshipFetches.push(fetchAction);
+	});
+	if (relationshipFetches.length) {
+		Promise.all(relationshipFetches).then(status => {
+			startImport(file, fileData, fieldData, req, res);
+		});
+	} else {
+		startImport(file, fileData, fieldData, req, res);
+	}
 };

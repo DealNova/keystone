@@ -30,8 +30,6 @@ class ImportButton extends React.Component {
 	applyCSV = () => {
 		const formData = new FormData();
 		formData.append("csv", this.state.fileData);
-		formData.append("fieldData", JSON.stringify(this.state.fieldData));
-		formData.append("currentListKey", this.state.currentList.key);
 		xhr(
 			{
 				url: `${Keystone.adminPath}/api/${this.state.currentList.path}/import`,
@@ -49,73 +47,6 @@ class ImportButton extends React.Component {
 				});
 			}
 		);
-	};
-
-	getFieldData = () => {
-		const { currentList } = this.state;
-		let titleMap = {};
-		let isRelationship = {};
-		let relationshipData = {};
-		let errorsXHR = [];
-		let fetchList = [];
-		let fetchListMap = {};
-		for (let i = 0; i < currentList.columns.length; i += 1) {
-			const col = currentList.columns[i];
-			titleMap[col.title] = col.path;
-			if (typeof col.field !== "undefined") {
-				if (col.field.type === "relationship") {
-					isRelationship[col.path] = true;
-					fetchList.push(col.field.refList.path);
-					fetchListMap[col.field.refList.path] = col.path;
-				} else {
-					isRelationship[col.path] = false;
-				}
-			}
-		}
-		const self = this;
-		const promises = fetchList.map(path => {
-			const promise = new Promise(function(resolve, reject) {
-				var xmlRequest = new XMLHttpRequest();
-				xmlRequest.onreadystatechange = function() {
-					if (xmlRequest.readyState == 4) {
-						if (xmlRequest.status == 200) resolve(xmlRequest.responseText);
-						else
-							reject(
-								self.showError(
-									"WARNING! Failed fetching related database entries!"
-								)
-							);
-					}
-				};
-				xmlRequest.open("GET", Keystone.adminPath + "/api/" + path, true);
-				xmlRequest.setRequestHeader(
-					"Content-Type",
-					"application/x-www-form-urlencoded"
-				);
-				xmlRequest.setRequestHeader("Accept", "application/json");
-				xmlRequest.send(null);
-			});
-			return promise.then(JSON.parse).then(result => {
-				let relationshipMap = {};
-				for (let i = 0; i < result.results.length; i += 1) {
-					const item = result.results[i];
-					relationshipMap[item.name] = item.id;
-				}
-				const realPath = fetchListMap[path];
-				relationshipData[realPath] = relationshipMap;
-				return result;
-			});
-		});
-		Promise.all(promises).then(function() {
-			self.setState({
-				fieldData: {
-					titleMap,
-					isRelationship,
-					errorsXHR,
-					relationshipData
-				}
-			});
-		});
 	};
 
 	handlePostDialogClose = () => {
@@ -152,7 +83,6 @@ class ImportButton extends React.Component {
 	handleOpen = e => {
 		e.preventDefault();
 		this.setState({ open: true });
-		this.getFieldData();
 	};
 
 	handleClose = () => {
