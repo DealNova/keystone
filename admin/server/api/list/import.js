@@ -261,7 +261,14 @@ module.exports = function (req, res) {
 			const idMapping = {};
 			const mapKey = relatedList.mappings.name;
 			relatedListItems.forEach(item => {
-				idMapping[item[mapKey]] = item;
+				let itemName = item[mapKey];
+				if (typeof itemName === 'object') {
+					const itemType = relatedList.fieldTypes[mapKey];
+					if (itemType === 'Name') {
+						itemName = itemName.full;
+					}
+				}
+				idMapping[itemName] = item;
 			});
 			fieldData.isRelationship[relationshipField.path] = idMapping;
 			fieldData.isRelationship[relationshipField.label] = idMapping;
