@@ -211,6 +211,7 @@ const applyUpdate = (items, res, req) => {
 							}`
 						);
 					}
+					console.log('CSV-Import: Error object:', err);
 				}
 				onFinish();
 			}
