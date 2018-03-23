@@ -248,7 +248,7 @@ module.exports = function (req, res) {
 	const file = fs.readFileSync(fileData.path, 'utf8');
 	const fieldData = { titleMap: {}, isRelationship: {} };
 	Object.keys(req.list.fields).forEach(fieldPath => {
-		fieldData.titleMap[fieldPath] = req.list.fields[fieldPath].label;
+		fieldData.titleMap[req.list.fields[fieldPath].label] = fieldPath;
 	});
 	const relationshipFetches = [];
 	req.list.relationshipFields.forEach(relationshipField => {
