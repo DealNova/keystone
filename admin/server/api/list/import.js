@@ -32,9 +32,12 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 					// In case of missing title configuration, use the titles themselves as paths.
 					const path = titleMap[title] || title;
 					paths.push(path);
-					translatedRow[path] = row[title];
+					translatedRow[path]
+						= row[title] !== '' || typeof row[title] === 'undefined'
+							? row[title]
+							: undefined;
 					// Count the number of empty properties.
-					if (typeof row[title] === 'undefined') {
+					if (typeof translatedRow[path] === 'undefined') {
 						emptyFields += 1;
 					}
 
