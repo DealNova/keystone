@@ -72,7 +72,7 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 					translatedData.push(translatedRow);
 				} else {
 					console.log(
-						`CSV-Import: Removing a live due to it being empty. File: ${
+						`CSV-Import: Removing a line due to it being empty. File: ${
 							fileData.originalname
 						}`
 					);
@@ -171,6 +171,8 @@ const applyUpdate = (items, res, req) => {
 	let taskID = 0;
 	let updateCount = 0;
 	let createCount = 0;
+	let updateErrorCount = 0;
+	let createErrorCount = 0;
 	let status = 200;
 	let error = null;
 	const onFinish = () => {
@@ -179,6 +181,8 @@ const applyUpdate = (items, res, req) => {
 			res.status(status);
 			console.log(`CSV-Import: ${updateCount} items updated.`);
 			console.log(`CSV-Import: ${createCount} items created.`);
+			console.log(`CSV-Import: ${updateErrorCount} update errors.`);
+			console.log(`CSV-Import: ${createErrorCount} create errors.`);
 			if (error !== null) {
 				res.send(error).end();
 			} else {
@@ -204,14 +208,17 @@ const applyUpdate = (items, res, req) => {
 								oldItem.id
 							}. Task ${taskID}. ${err.error}`
 						);
+						updateErrorCount += 1;
 					} else {
 						console.log(
 							`CSV-Import: Error while creating a new item. Task ${taskID}. ${
 								err.error
 							}`
 						);
+						createErrorCount += 1;
 					}
 					console.log('CSV-Import: Error object:', err);
+					console.log('CSV-Import: Data object:', newItem);
 				}
 				onFinish();
 			}
