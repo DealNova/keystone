@@ -173,6 +173,7 @@ const applyUpdate = (items, res, req) => {
 	let createCount = 0;
 	let updateErrorCount = 0;
 	let createErrorCount = 0;
+	const failedTasks = [];
 	let status = 200;
 	let error = null;
 	const onFinish = () => {
@@ -183,6 +184,7 @@ const applyUpdate = (items, res, req) => {
 			console.log(`CSV-Import: ${createCount} items created.`);
 			console.log(`CSV-Import: ${updateErrorCount} update errors.`);
 			console.log(`CSV-Import: ${createErrorCount} create errors.`);
+			console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
 			if (error !== null) {
 				res.send(error).end();
 			} else {
@@ -219,6 +221,7 @@ const applyUpdate = (items, res, req) => {
 					}
 					console.log('CSV-Import: Error object:', err);
 					console.log('CSV-Import: Data object:', newItem);
+					failedTasks.push(taskID);
 				}
 				onFinish();
 			}
