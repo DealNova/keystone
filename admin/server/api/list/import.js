@@ -167,10 +167,9 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 };
 
 const applyUpdate = (items, res, req) => {
-	let updateCBCount = 0;
-	let updateTaskID = 0;
+	let cbCount = 0;
+	let taskID = 0;
 	let updateCount = 0;
-	let actualUpdateCount = 0;
 	let createCount = 0;
 	let updateErrorCount = 0;
 	let createErrorCount = 0;
@@ -178,119 +177,72 @@ const applyUpdate = (items, res, req) => {
 	let status = 200;
 	let error = null;
 	const onFinish = () => {
-		res.status(status);
-		console.log(`CSV-Import: ${updateCount} items attempted to update.`);
-		console.log(`CSV-Import: ${updateErrorCount} update errors.`);
-		console.log(`CSV-Import: ${actualUpdateCount} actual updates.`);
-		console.log(`CSV-Import: ${createCount} items attempted to create.`);
-		if (createErrorCount > 0) {
-			console.log(`CSV-Import: Failed to create items.`);
-		} else {
-			console.log('CSV-Import: No item creation errors reported.');
-		}
-		if (failedTasks.length > 0) {
-			console.log(
-				`CSV-Import: Failed update tasks: ${failedTasks.toString()}.`
-			);
-		}
-		if (error !== null) {
-			res.send(error).end();
-		} else {
-			res.end();
+		cbCount -= 1;
+		if (cbCount === 0) {
+			res.status(status);
+			console.log(`CSV-Import: ${updateCount} items updated.`);
+			console.log(`CSV-Import: ${createCount} items created.`);
+			console.log(`CSV-Import: ${updateErrorCount} update errors.`);
+			console.log(`CSV-Import: ${createErrorCount} create errors.`);
+			console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
+			if (error !== null) {
+				res.send(error).end();
+			} else {
+				res.end();
+			}
 		}
 	};
-	const updateItem = (id, newData) => {
-		console.log(`CSV-Import: Updating ${id}. Task ${updateTaskID}.`);
-		req.list.model.findById(id).then(oldItem => {
-			delete newData._id;
-			req.list.updateItem(
-				oldItem,
-				new FormData(newData),
-				{
-					ignoreNoEdit: true,
-					user: req.user,
-				},
-				function (err) {
-					if (err) {
-						status = err.error === 'validation errors' ? 400 : 500;
-						error = err.error === 'database error' ? err.detail : err;
+	const updateWrapper = (oldItem, newItem, taskID) => {
+		req.list.updateItem(
+			oldItem !== null ? oldItem : new req.list.model(),
+			new FormData(newItem),
+			{
+				ignoreNoEdit: true,
+				user: req.user,
+			},
+			function (err) {
+				if (err) {
+					status = err.error === 'validation errors' ? 400 : 500;
+					error = err.error === 'database error' ? err.detail : err;
+					if (oldItem !== null && oldItem._id) {
 						console.log(
 							`CSV-Import: Error while updating ${
 								oldItem.id
-							}. Task ${updateTaskID}. ${err.error}`
+							}. Task ${taskID}. ${err.error}`
 						);
 						updateErrorCount += 1;
-
-						console.log('CSV-Import: Error object:', err);
-						console.log('CSV-Import: Data object:', newData);
-						failedTasks.push(updateTaskID);
 					} else {
-						actualUpdateCount += 1;
+						console.log(
+							`CSV-Import: Error while creating a new item. Task ${taskID}. ${
+								err.error
+							}`
+						);
+						createErrorCount += 1;
 					}
-					updateCBCount -= 1;
-					if (updateCBCount === 0) {
-						onUpdateEnd();
-					}
+					console.log('CSV-Import: Error object:', err);
+					console.log('CSV-Import: Data object:', newItem);
+					failedTasks.push(taskID);
 				}
-			);
-		});
-	};
-
-	const createItems = itemList => {
-		const modelName = req.list.key;
-		const createData = {
-			[modelName]: itemList,
-		};
-		req.keystone.createItems(createData, err => {
-			if (err) {
-				status = err.error === 'validation errors' ? 400 : 500;
-				error = err.error === 'database error' ? err.detail : err;
-				console.log(`CSV-Import: Error while creating new items. ${err.error}`);
-				createErrorCount += 1;
-				console.log('CSV-Import: Error object:', err);
+				onFinish();
 			}
-			onCreateEnd();
-		});
+		);
 	};
-
-	const onUpdateEnd = () => {
-		console.log('CSV-Import: Creating new records.');
-		if (createList.length > 0) {
-			createItems(createList);
-		} else {
-			console.log('CSV-Import: No new records found.');
-			onCreateEnd();
-		}
-	};
-	const onCreateEnd = () => {
-		onFinish();
-	};
-
-	const updateList = {};
-	const createList = [];
-
-	items.forEach(item => {
-		if (typeof item._id !== 'undefined') {
+	items.forEach(newItem => {
+		cbCount += 1;
+		taskID += 1;
+		if (typeof newItem._id !== 'undefined') {
+			console.log(`CSV-Import: Updating ${newItem._id}. Task ${taskID}.`);
 			updateCount += 1;
-			updateList[item._id] = item;
+			req.list.model.findById(newItem._id).then(oldItem => {
+				delete newItem._id;
+				updateWrapper(oldItem, newItem, taskID);
+			});
 		} else {
+			console.log(`CSV-Import: Creating a new item. Task ${taskID}.`);
 			createCount += 1;
-			createList.push(item);
+			updateWrapper(null, newItem, taskID);
 		}
 	});
-
-	console.log('CSV-Import: Updating existing records.');
-	const updateIDs = Object.keys(updateList);
-	if (updateIDs.length > 0) {
-		updateIDs.forEach(updateID => {
-			updateCBCount += 1;
-			updateTaskID += 1;
-			updateItem(updateID, updateList[updateID]);
-		});
-	} else {
-		console.log('CSV-Import: No existing records found eligible for updates.');
-		onUpdateEnd();
-	}
 };
 
 const startImport = (file, fileData, fieldData, req, res) => {
