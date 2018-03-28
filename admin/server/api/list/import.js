@@ -121,7 +121,7 @@ const generateKey = (itemData, autoKeySettings) => {
 };
 
 const fixDataPaths = (translatedData, fieldData, currentList, req) => {
-	return req.list.model.find().then(currentData => {
+	return currentList.model.find().then(currentData => {
 		const autoKeySettings = currentList.autokey;
 		// Generate key-> item mapping for fast access if !unique
 		let currentKeys = {};
@@ -142,7 +142,7 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 					const existingItem = findItemByFields(
 						currentData,
 						searchFields,
-						req.list.fields
+						currentList.fields
 					);
 					if (typeof existingItem !== 'undefined') {
 						itemData._id = existingItem._id;
@@ -166,7 +166,7 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 	});
 };
 
-const applyUpdate = (items, res, req) => {
+const applyUpdate = (items, list, res, req) => {
 	let cbCount = 0;
 	let taskID = 0;
 	let updateCount = 0;
@@ -193,8 +193,8 @@ const applyUpdate = (items, res, req) => {
 		}
 	};
 	const updateWrapper = (oldItem, newItem, taskID) => {
-		req.list.updateItem(
-			oldItem !== null ? oldItem : new req.list.model(),
+		list.updateItem(
+			oldItem !== null ? oldItem : new list.model(),
 			new FormData(newItem),
 			{
 				ignoreNoEdit: true,
@@ -233,7 +233,7 @@ const applyUpdate = (items, res, req) => {
 		if (typeof newItem._id !== 'undefined') {
 			console.log(`CSV-Import: Updating ${newItem._id}. Task ${taskID}.`);
 			updateCount += 1;
-			req.list.model.findById(newItem._id).then(oldItem => {
+			list.model.findById(newItem._id).then(oldItem => {
 				delete newItem._id;
 				updateWrapper(oldItem, newItem, taskID);
 			});
@@ -245,10 +245,10 @@ const applyUpdate = (items, res, req) => {
 	});
 };
 
-const startImport = (file, fileData, fieldData, req, res) => {
+const startImport = (file, fileData, fieldData, list, req, res) => {
 	parseCSV(file, fileData, fieldData, translatedData => {
-		fixDataPaths(translatedData, fieldData, req.list, req).then(itemList => {
-			applyUpdate(itemList, res, req);
+		fixDataPaths(translatedData, fieldData, list, req).then(itemList => {
+			applyUpdate(itemList, list, res, req);
 		});
 	});
 };
@@ -261,11 +261,26 @@ module.exports = function (req, res) {
 	const fileData = req.files.csv;
 	const file = fs.readFileSync(fileData.path, 'utf8');
 	const fieldData = { titleMap: {}, isRelationship: {} };
-	Object.keys(req.list.fields).forEach(fieldPath => {
-		fieldData.titleMap[req.list.fields[fieldPath].label] = fieldPath;
+	let list = req.list;
+	const modelOverride = req.list.options.csvImportModel;
+	if (modelOverride !== null) {
+		console.log(
+			`CSV-Import: Overriding import model of ${
+				req.list.key
+			} with ${modelOverride}.`
+		);
+		list = req.keystone.lists[modelOverride];
+	}
+	if (typeof list === 'undefined') {
+		console.log(`CSV-Import: ERROR: Undefined list. Aborting.`);
+		res.apiError(500, 'Internal error.');
+		return null;
+	}
+	Object.keys(list.fields).forEach(fieldPath => {
+		fieldData.titleMap[list.fields[fieldPath].label] = fieldPath;
 	});
 	const relationshipFetches = [];
-	req.list.relationshipFields.forEach(relationshipField => {
+	list.relationshipFields.forEach(relationshipField => {
 		const relatedList = req.keystone.lists[relationshipField.options.ref];
 		const fetchAction = relatedList.model.find().then(relatedListItems => {
 			const idMapping = {};
@@ -288,9 +303,9 @@ module.exports = function (req, res) {
 	});
 	if (relationshipFetches.length) {
 		Promise.all(relationshipFetches).then(status => {
-			startImport(file, fileData, fieldData, req, res);
+			startImport(file, fileData, fieldData, list, req, res);
 		});
 	} else {
-		startImport(file, fileData, fieldData, req, res);
+		startImport(file, fileData, fieldData, list, req, res);
 	}
 };
