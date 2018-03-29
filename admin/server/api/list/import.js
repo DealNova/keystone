@@ -86,7 +86,10 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 const findItemByFields = (currentData, searchFields, fieldData) => {
 	return currentData.find(oldItem => {
 		let isMatch = true;
-		Object.keys(searchFields).forEach(fieldName => {
+		let currentIndex = 0;
+		const searchFieldNames = Object.keys(searchFields);
+		while (currentIndex < searchFieldNames.length && isMatch) {
+			const fieldName = searchFieldNames[currentIndex];
 			const newValue = searchFields[fieldName];
 			const oldValue = oldItem[fieldName];
 			if (oldValue !== newValue) {
@@ -105,7 +108,8 @@ const findItemByFields = (currentData, searchFields, fieldData) => {
 					isMatch = false;
 				}
 			}
-		});
+			currentIndex += 1;
+		}
 		return isMatch;
 	});
 };
@@ -123,6 +127,7 @@ const generateKey = (itemData, autoKeySettings) => {
 const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 	return currentList.model.find().then(currentData => {
 		const autoKeySettings = currentList.autokey;
+		let searchID = 0;
 		// Generate key-> item mapping for fast access if !unique
 		let currentKeys = {};
 		if (!autoKeySettings.unique) {
@@ -133,6 +138,12 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 		}
 		const addFieldsAndID = itemData => {
 			if (typeof autoKeySettings !== 'undefined') {
+				searchID += 1;
+				console.log(
+					`CSV-Import: Searching for a matching existing record. SearchID: ${searchID}/${
+						translatedData.length
+					}.`
+				);
 				const searchFields = {};
 				if (autoKeySettings.unique) {
 					autoKeySettings.from.forEach(fieldData => {
