@@ -1,6 +1,5 @@
 const FormData = require('form-data');
 const Papa = require('papaparse');
-const moment = require('moment');
 const fs = require('fs');
 const utils = require('keystone-utils');
 
@@ -83,38 +82,7 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 	});
 };
 
-const findItemByFields = (currentData, searchFields, fieldData) => {
-	return currentData.find(oldItem => {
-		let isMatch = true;
-		let currentIndex = 0;
-		const searchFieldNames = Object.keys(searchFields);
-		while (currentIndex < searchFieldNames.length && isMatch) {
-			const fieldName = searchFieldNames[currentIndex];
-			const newValue = searchFields[fieldName];
-			const oldValue = oldItem[fieldName];
-			if (oldValue !== newValue) {
-				// Double check if it's a date object
-				if (
-					fieldData[fieldName].type === 'date'
-					|| fieldData[fieldName].type === 'datetime'
-				) {
-					const defaultFormat = 'YYYY-MM-DD h:m:s a'; // To prevent deprecation warning by momentjs
-					const newDate = moment(newValue, defaultFormat);
-					const oldDate = moment(oldValue, defaultFormat);
-					if (!newDate.isSame(oldDate)) {
-						isMatch = false;
-					}
-				} else {
-					isMatch = false;
-				}
-			}
-			currentIndex += 1;
-		}
-		return isMatch;
-	});
-};
-
-const generateKey = (itemData, autoKeySettings) => {
+const generateKey = (itemData, autoKeySettings, currentList) => {
 	const values = [];
 	autoKeySettings.from.forEach(ops => {
 		values.push(itemData[ops.path]);
@@ -129,13 +97,14 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 		const autoKeySettings = currentList.autokey;
 		let searchID = 0;
 		// Generate key-> item mapping for fast access if !unique
-		let currentKeys = {};
-		if (!autoKeySettings.unique) {
-			const keyPath = autoKeySettings.path;
-			currentData.forEach(oldItem => {
-				currentKeys[oldItem[keyPath]] = oldItem;
-			});
-		}
+		const currentKeys = {};
+		const registeredKeys = [];
+		const keyPath = autoKeySettings.path;
+		currentData.forEach(oldItem => {
+			registeredKeys.push(oldItem[keyPath]);
+			currentKeys[oldItem[keyPath]] = oldItem;
+		});
+
 		const addFieldsAndID = itemData => {
 			if (typeof autoKeySettings !== 'undefined') {
 				searchID += 1;
@@ -144,26 +113,10 @@ const fixDataPaths = (translatedData, fieldData, currentList, req) => {
 						translatedData.length
 					}.`
 				);
-				const searchFields = {};
-				if (autoKeySettings.unique) {
-					autoKeySettings.from.forEach(fieldData => {
-						const path = fieldData.path.replace(/,/g, '');
-						searchFields[path] = itemData[path];
-					});
-					const existingItem = findItemByFields(
-						currentData,
-						searchFields,
-						currentList.fields
-					);
-					if (typeof existingItem !== 'undefined') {
-						itemData._id = existingItem._id;
-					}
-				} else {
-					// Assume key generation and check for an existing item
-					const newKey = generateKey(itemData, autoKeySettings);
-					if (typeof currentKeys[newKey] !== 'undefined') {
-						itemData._id = currentKeys[newKey]._id;
-					}
+				// Assume key generation and check for an existing item
+				const newKey = generateKey(itemData, autoKeySettings, currentList);
+				if (typeof currentKeys[newKey] !== 'undefined') {
+					itemData._id = currentKeys[newKey]._id || currentKeys[newKey].id;
 				}
 			}
 			return itemData;
