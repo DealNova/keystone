@@ -139,21 +139,27 @@ const applyUpdate = (items, list, res, req) => {
 	let createErrorCount = 0;
 	const failedTasks = [];
 	let status = 200;
-	let error = null;
 	const onFinish = () => {
 		cbCount -= 1;
 		if (cbCount === 0) {
 			res.status(status);
+			console.log(
+				`CSV-Import: ${items.length} items detected in the CSV file.`
+			);
 			console.log(`CSV-Import: ${updateCount} items updated.`);
 			console.log(`CSV-Import: ${createCount} items created.`);
 			console.log(`CSV-Import: ${updateErrorCount} update errors.`);
 			console.log(`CSV-Import: ${createErrorCount} create errors.`);
-			console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
-			if (error !== null) {
-				res.send(error).end();
-			} else {
-				res.end();
+			if (failedTasks.length > 0) {
+				console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
 			}
+			res.send({
+				items: items.length,
+				updateCount,
+				createCount,
+				updateErrorCount,
+				createErrorCount,
+			});
 		}
 	};
 	const updateWrapper = (oldItem, newItem, taskID) => {
@@ -167,7 +173,6 @@ const applyUpdate = (items, list, res, req) => {
 			function (err) {
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
-					error = err.error === 'database error' ? err.detail : err;
 					if (oldItem !== null && oldItem._id) {
 						console.log(
 							`CSV-Import: Error while updating ${
