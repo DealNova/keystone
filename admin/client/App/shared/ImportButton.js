@@ -22,7 +22,6 @@ class ImportButton extends React.Component {
 			submitActive: false,
 			postDialog: false,
 			submitErrors: false,
-			postDialogText: "",
 			currentList
 		};
 	}
@@ -38,12 +37,10 @@ class ImportButton extends React.Component {
 				body: formData
 			},
 			(err, resp, data) => {
-				let error = err;
-				const postDialogText = error ? error : "Completed successfully.";
+				const responseData = JSON.parse(resp.body);
 				this.setState({
-					submitErrors: error,
-					postDialogText,
-					postDialog: true
+					postDialog: true,
+					responseData
 				});
 			}
 		);
@@ -192,9 +189,21 @@ class ImportButton extends React.Component {
 					backdropClosesModal={this.props.rerenderCallback ? false : true}
 				>
 					<Modal.Body>
-						<Alert color={this.state.submitErrors ? "danger" : "success"}>
-							<p>{this.state.postDialogText}</p>
-						</Alert>
+						{this.state.responseData && (
+							<Alert color="success">
+								<p>{`${
+									this.state.responseData.items
+								} items detected in the CSV file.`}</p>
+								<p>{`${this.state.responseData.updateCount} items updated.`}</p>
+								<p>{`${this.state.responseData.createCount} items created.`}</p>
+								<p>{`${
+									this.state.responseData.updateErrorCount
+								} update errors.`}</p>
+								<p>{`${
+									this.state.responseData.createErrorCount
+								} create errors.`}</p>
+							</Alert>
+						)}
 					</Modal.Body>
 					<Modal.Footer>
 						<Button style={{ margin: "auto" }} onClick={this.onPostModalButton}>
