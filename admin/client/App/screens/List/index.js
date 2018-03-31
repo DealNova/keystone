@@ -42,9 +42,7 @@ import {
 	clearCachedQuery,
 } from './actions';
 
-import {
-	deleteItem,
-} from '../Item/actions';
+import { deleteItem } from '../Item/actions';
 
 const ESC_KEY_CODE = 27;
 
@@ -75,9 +73,9 @@ const ListView = React.createClass({
 		const shouldOpenCreate = this.props.location.search === '?create';
 
 		this.setState({
-			showCreateForm: (shouldOpenCreate && !isNoCreate) || Keystone.createFormErrors,
+			showCreateForm:
+				(shouldOpenCreate && !isNoCreate) || Keystone.createFormErrors,
 		});
-
 	},
 	componentWillReceiveProps (nextProps) {
 		// We've opened a new list from the client side routing, so initialize
@@ -110,7 +108,9 @@ const ListView = React.createClass({
 				alert('Something went wrong, please try again!');
 				console.log(err);
 			} else {
-				this.context.router.push(`${Keystone.adminPath}/${list.path}/${data.id}`);
+				this.context.router.push(
+					`${Keystone.adminPath}/${list.path}/${data.id}`
+				);
 			}
 		});
 	},
@@ -152,7 +152,11 @@ const ListView = React.createClass({
 	massDelete () {
 		const { checkedItems } = this.state;
 		const list = this.props.currentList;
-		const itemCount = pluralize(checkedItems, ('* ' + list.singular.toLowerCase()), ('* ' + list.plural.toLowerCase()));
+		const itemCount = pluralize(
+			checkedItems,
+			'* ' + list.singular.toLowerCase(),
+			'* ' + list.plural.toLowerCase()
+		);
 		const itemIds = Object.keys(checkedItems);
 
 		this.setState({
@@ -253,30 +257,26 @@ const ListView = React.createClass({
 					// common
 					dispatch={this.props.dispatch}
 					list={listsByPath[this.props.params.listId]}
-
 					// expand
 					expandIsActive={!this.state.constrainTableWidth}
 					expandOnClick={this.toggleTableWidth}
-
 					// create
 					createIsAvailable={!nocreate}
 					createListName={singular}
-					createOnClick={autocreate
-						? this.createAutocreate
-						: this.openCreateModal}
-
+					createOnClick={
+						autocreate ? this.createAutocreate : this.openCreateModal
+					}
 					// search
 					searchHandleChange={this.updateSearch}
 					searchHandleClear={this.handleSearchClear}
 					searchHandleKeyup={this.handleSearchKey}
 					searchValue={this.props.active.search}
-
 					// filters
 					filtersActive={this.props.active.filters}
-					filtersAvailable={this.props.currentList.columns.filter((col) => (
-						col.field && col.field.hasFilterMethod) || col.type === 'heading'
+					filtersAvailable={this.props.currentList.columns.filter(
+						col =>
+							(col.field && col.field.hasFilterMethod) || col.type === 'heading'
 					)}
-
 					// columns
 					columnsActive={this.props.active.columns}
 					columnsAvailable={this.props.currentList.columns}
@@ -321,15 +321,22 @@ const ListView = React.createClass({
 		// a spinner.
 		this.setState({ selectAllItemsLoading: true });
 		var self = this;
-		this.props.currentList.loadItems({ expandRelationshipFilters: false, filters: {} }, function (err, data) {
-			data.results.forEach(item => {
-				checkedItems[item.id] = true;
-			});
-			self.setState({
-				checkedItems: checkedItems,
-				selectAllItemsLoading: false,
-			});
-		});
+		this.props.currentList.loadItems(
+			{
+				expandRelationshipFilters: false,
+				filters: {},
+				limits: { size: 1000000, select: 'id' },
+			},
+			function (err, data) {
+				data.results.forEach(item => {
+					checkedItems[item.id] = true;
+				});
+				self.setState({
+					checkedItems: checkedItems,
+					selectAllItemsLoading: false,
+				});
+			}
+		);
 	},
 	uncheckAllTableItems () {
 		this.setState({
@@ -396,10 +403,12 @@ const ListView = React.createClass({
 		this.toggleCreateModal(false);
 	},
 	showBlankState () {
-		return !this.props.loading
-				&& !this.props.items.results.length
-				&& !this.props.active.search
-				&& !this.props.active.filters.length;
+		return (
+			!this.props.loading
+			&& !this.props.items.results.length
+			&& !this.props.active.search
+			&& !this.props.active.filters.length
+		);
 	},
 	renderBlankState () {
 		const { currentList } = this.props;
@@ -413,28 +422,49 @@ const ListView = React.createClass({
 
 		// display the button if create allowed
 		const button = !currentList.nocreate ? (
-			<GlyphButton color="success" glyph="plus" position="left" onClick={onClick} data-e2e-list-create-button="no-results">
+			<GlyphButton
+				color="success"
+				glyph="plus"
+				position="left"
+				onClick={onClick}
+				data-e2e-list-create-button="no-results"
+			>
 				Create {currentList.singular}
 			</GlyphButton>
 		) : null;
 
 		// display the import button if create is allowed
 		const importButton = !currentList.nocreate ? (
-			<div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+			<div
+				style={{
+					marginTop: '10px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
 				<ImportButton currentPath={currentList.path} />
 			</div>
 		) : null;
 
 		return (
 			<Container>
-				{(this.props.error) ? (
+				{this.props.error ? (
 					<FlashMessages
-						messages={{ error: [{
-							title: "There is a problem with the network, we're trying to reconnect...",
-						}] }}
+						messages={{
+							error: [
+								{
+									title:
+										"There is a problem with the network, we're trying to reconnect...",
+								},
+							],
+						}}
 					/>
 				) : null}
-				<BlankState heading={`No ${this.props.currentList.plural.toLowerCase()} found...`} style={{ marginTop: 40 }}>
+				<BlankState
+					heading={`No ${this.props.currentList.plural.toLowerCase()} found...`}
+					style={{ marginTop: 40 }}
+				>
 					{button}
 					{importButton}
 				</BlankState>
@@ -464,14 +494,19 @@ const ListView = React.createClass({
 					</div>
 				</Container>
 				<Container style={containerStyle}>
-					{(this.props.error) ? (
+					{this.props.error ? (
 						<FlashMessages
-							messages={{ error: [{
-								title: "There is a problem with the network, we're trying to reconnect..",
-							}] }}
+							messages={{
+								error: [
+									{
+										title:
+											"There is a problem with the network, we're trying to reconnect..",
+									},
+								],
+							}}
 						/>
 					) : null}
-					{(this.props.loading) ? (
+					{this.props.loading ? (
 						<Center height="50vh">
 							<Spinner />
 						</Center>
@@ -504,18 +539,17 @@ const ListView = React.createClass({
 		if (this.props.items.results.length) return null;
 		let matching = this.props.active.search;
 		if (this.props.active.filters.length) {
-			matching += (matching ? ' and ' : '') + pluralize(this.props.active.filters.length, '* filter', '* filters');
+			matching
+				+= (matching ? ' and ' : '')
+				+ pluralize(this.props.active.filters.length, '* filter', '* filters');
 		}
 		matching = matching ? ' found matching ' + matching : '.';
 		return (
 			<BlankState style={{ marginTop: 20, marginBottom: 20 }}>
-				<Glyph
-					name="search"
-					size="medium"
-					style={{ marginBottom: 20 }}
-				/>
+				<Glyph name="search" size="medium" style={{ marginBottom: 20 }} />
 				<h2 style={{ color: 'inherit' }}>
-					No {this.props.currentList.plural.toLowerCase()}{matching}
+					No {this.props.currentList.plural.toLowerCase()}
+					{matching}
 				</h2>
 			</BlankState>
 		);
@@ -551,7 +585,7 @@ const ListView = React.createClass({
 	},
 });
 
-module.exports = connect((state) => {
+module.exports = connect(state => {
 	return {
 		lists: state.lists,
 		loading: state.lists.loading,
