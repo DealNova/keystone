@@ -6,7 +6,7 @@ const utils = require('keystone-utils');
 const parseCSV = (file, fileData, fieldData, callback) => {
 	Papa.parse(file, {
 		header: true,
-		dynamicTyping: true,
+		dynamicTyping: false,
 		// TODO:  We might have issues with big files using all the memory.
 		// Unfortunately every possible solution involves huge RAM usage anyways if the CSV is big
 		// In fact, stepping threw the rows and dispatching PUTs might make RAM usage worse
