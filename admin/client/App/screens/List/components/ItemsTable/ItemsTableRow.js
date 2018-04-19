@@ -1,4 +1,5 @@
 import React from 'react';
+import assign from 'object-assign';
 import classnames from 'classnames';
 
 import ListControl from '../ListControl';
