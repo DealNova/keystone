@@ -3,7 +3,7 @@ import classnames from 'classnames';
 
 import ListControl from '../ListControl';
 
-import { Columns } from 'FieldTypes';
+import { Columns, Fields } from 'FieldTypes';
 import { DropTarget, DragSource } from 'react-dnd';
 
 import {
@@ -44,7 +44,8 @@ const ItemsRow = React.createClass({
 		var cells = this.props.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			var linkTo = !i ? `${Keystone.adminPath}/${this.props.list.path}/${itemId}` : undefined;
-			return <ColumnType editMode={this.props.editMode} key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />;
+			console.log(Fields[col.type])
+			return <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />;
 		});
 
 		// add sortable icon when applicable
