@@ -49,7 +49,15 @@ const ItemsRow = React.createClass({
 		}
 
 		if (this.props.list.inlineEdit) {
-			cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>);
+			cells.unshift(
+				this.props.editMode ?
+				(
+					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.props.saveItem(item.id)}/>
+				)
+				: (
+					<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>
+				)
+			);
 		}
 
 		// add delete/check icon when applicable

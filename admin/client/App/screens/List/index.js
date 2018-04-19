@@ -140,6 +140,11 @@ const ListView = React.createClass({
 			editingItemId: itemId
 		})
 	},
+	saveItem () {
+		this.setState({
+			editingItemId: null
+		})
+	},
 	toggleManageMode (filter = !this.state.manageMode) {
 		this.setState({
 			manageMode: filter,
@@ -535,6 +540,7 @@ const ListView = React.createClass({
 								dispatch={this.props.dispatch}
 								editingItemId={this.state.editingItemId}
 								changeEditingItemId={this.changeEditingItemId}
+								saveItem={this.saveItem}
 							/>
 							{this.renderNoSearchResults()}
 						</div>

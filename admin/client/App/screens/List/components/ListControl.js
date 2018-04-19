@@ -26,6 +26,9 @@ var ListControl = React.createClass({
 		if (this.props.type === 'inlineEdit') {
 			icon += 'pencil';
 		}
+		if(this.props.type === 'saveItem') {
+			icon += 'clippy'
+		}
 
 		var renderButton = (
 			<button type="button" onClick={this.props.onClick} className={className} tabIndex={tabindex}>
