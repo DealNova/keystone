@@ -45,7 +45,7 @@ const ItemsRow = React.createClass({
 			var linkTo = !i ? `${Keystone.adminPath}/${this.props.list.path}/${itemId}` : undefined;
 			var FieldComponent = Fields[col.field.type];
 			return (
-				this.props.editMode ? <FieldComponent {...col.field} /> : <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />
+				this.props.editMode ? <td><FieldComponent {...col.field} /></td> : <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />
 			);
 		});
 
