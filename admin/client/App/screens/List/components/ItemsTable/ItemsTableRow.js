@@ -14,6 +14,7 @@ import {
 	setRowAlert,
 	moveItem,
 } from '../../actions';
+import { objectToFormData } from '../../../../../utils/queryParams';
 
 const ItemsRow = React.createClass({	
 	propTypes: {
@@ -54,7 +55,14 @@ const ItemsRow = React.createClass({
 		});
 	},
 	saveItem () {
-		console.log(this.state.values, this.props.list)	
+		const { list, item } = this.props;
+		
+		var formData = objectToFormData(this.state.values);
+
+		list.updateItem(item.id, formData, (err, data) => {
+			console.log(err, data)
+			this.props.saveItem(item.id)
+		})
 	},
 	getFieldProps (field) {
 		var props = assign({}, field);
@@ -96,7 +104,7 @@ const ItemsRow = React.createClass({
 			cells.unshift(
 				this.props.editMode ?
 				(
-					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem(item.id)}/>
+					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem()}/>
 				)
 				: (
 					<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>
