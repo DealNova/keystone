@@ -33,8 +33,8 @@ const ItemsRow = React.createClass({
 			values: {},
 		};
 	},
-	componentWillRecieveProps (nextProps) {
-		console.log(nextProps)
+	componentWillReceiveProps (nextProps) {
+		console.log(nextProps, 'componentWillReceiveProps')
 	},
 	handleChange (event) {
 		console.log(event);
