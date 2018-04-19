@@ -14,7 +14,7 @@ import {
 	moveItem,
 } from '../../actions';
 
-const ItemsRow = React.createClass({
+const ItemsRow = React.createClass({	
 	propTypes: {
 		columns: React.PropTypes.array,
 		id: React.PropTypes.any,
@@ -26,6 +26,23 @@ const ItemsRow = React.createClass({
 		connectDragSource: React.PropTypes.func,  // eslint-disable-line react/sort-prop-types
 		connectDropTarget: React.PropTypes.func,  // eslint-disable-line react/sort-prop-types
 		connectDragPreview: React.PropTypes.func, // eslint-disable-line react/sort-prop-types
+	},
+	getInitialState () {
+		return {
+			values: {},
+		};
+	},
+	handleChange (event) {
+		console.log(event);
+	},
+	getFieldProps (field) {
+		var props = assign({}, field);
+		props.value = this.state.values[field.path];
+		props.values = this.state.values;
+		props.onChange = this.handleChange;
+		props.mode = 'create';
+		props.key = field.path;
+		return props;
 	},
 	renderRow (item) {
 		const itemId = item.id;
@@ -43,9 +60,11 @@ const ItemsRow = React.createClass({
 		var cells = this.props.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			var linkTo = !i ? `${Keystone.adminPath}/${this.props.list.path}/${itemId}` : undefined;
-			var FieldComponent = Fields[col.field.type];
+			var fieldProps = this.getFieldProps(col.field);
+			var FieldComponent = React.createElement(Fields[col.field.type], fieldProps);
+
 			return (
-				this.props.editMode ? <td><FieldComponent {...col.field} /></td> : <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />
+				this.props.editMode ? <td>{FieldComponent}</td> : <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />
 			);
 		});
 
