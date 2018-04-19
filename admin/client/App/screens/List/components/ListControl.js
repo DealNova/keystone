@@ -5,7 +5,7 @@ var ListControl = React.createClass({
 	propTypes: {
 		dragSource: React.PropTypes.func,
 		onClick: React.PropTypes.func,
-		type: React.PropTypes.oneOf(['check', 'delete', 'sortable']).isRequired,
+		type: React.PropTypes.oneOf(['check', 'delete', 'sortable', 'inlineEdit']).isRequired,
 	},
 	renderControl () {
 		var icon = 'octicon octicon-';

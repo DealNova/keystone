@@ -54,7 +54,7 @@ const ItemsTable = React.createClass({
 
 		// pad first col when controls are available
 		const cellPad = listControlCount ? (
-			<th colSpan={listControlCount} />
+			<th className="listcontrol__head" colSpan={listControlCount} />
 		) : null;
 
 		// map each heading column
