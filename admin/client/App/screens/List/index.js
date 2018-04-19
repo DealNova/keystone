@@ -580,13 +580,13 @@ const ListView = React.createClass({
 			<div data-screen-id="list">
 				{this.renderBlankState()}
 				{this.renderActiveState()}
-				{/* <CreateForm
+				<CreateForm
 					err={Keystone.createFormErrors}
 					isOpen={this.state.showCreateForm}
 					list={this.props.currentList}
 					onCancel={this.closeCreateModal}
 					onCreate={this.onCreate}
-				/> */}
+				/>
 				<UpdateForm
 					isOpen={this.state.showUpdateForm}
 					itemIds={Object.keys(this.state.checkedItems)}
