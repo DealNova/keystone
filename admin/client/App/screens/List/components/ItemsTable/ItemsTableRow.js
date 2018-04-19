@@ -60,7 +60,6 @@ const ItemsRow = React.createClass({
 		var formData = objectToFormData(this.state.values);
 
 		list.updateItem(item.id, formData, (err, data) => {
-			console.log(err, data)
 			this.props.saveItem(item.id)
 		})
 	},
