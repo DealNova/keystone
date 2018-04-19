@@ -36,6 +36,10 @@ const ItemsRow = React.createClass({
 			'ItemList__row--success': this.props.rowAlert.success === itemId,
 			'ItemList__row--failure': this.props.rowAlert.fail === itemId,
 		});
+
+		console.log(this.props.list, 'this.props.list')
+		alert(JSON.stringify(this.props.list))
+
 		// item fields
 		var cells = this.props.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;

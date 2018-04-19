@@ -16,12 +16,10 @@ var NameColumn = React.createClass({
 		return displayName(value.first, value.last);
 	},
 	render () {
-		const { editMode } = this.props;
-
 		return (
 			<ItemsTableCell>
 				<ItemsTableValue to={this.props.linkTo} padded interior field={this.props.col.type}>
-					{editMode ? <input type="text" /> : this.renderValue()}
+					{this.renderValue()}
 				</ItemsTableValue>
 			</ItemsTableCell>
 		);
