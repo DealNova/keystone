@@ -29,7 +29,7 @@ var ListControl = React.createClass({
 		if(this.props.type === 'saveItem') {
 			icon += 'clippy'
 		}
-		if(this.props.type === '_cancelItem') {
+		if(this.props.type === 'cancelItem') {
 			icon += 'x'
 		}
 

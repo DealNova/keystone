@@ -109,7 +109,7 @@ const ItemsRow = React.createClass({
 		if (this.props.list.inlineEdit) {
 
 			if(this.props.editMode) {
-				cells.unshift(<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem()}/>)
+				cells.unshift(<ListControl key="_saveItem" type="saveItem" onClick={(e) => this.saveItem()}/>)
 				cells.unshift(<ListControl key="_cancelItem" type="cancelItem" onClick={(e) => this.props.cancelItem()}/>)
 			} else {
 				cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>)

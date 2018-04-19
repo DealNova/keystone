@@ -47,15 +47,22 @@ const ItemsTable = React.createClass({
 
 		if (this.props.list.sortable) listControlCount++;
 		if (!this.props.list.nodelete) listControlCount++;
-		if (this.props.list.inlineEdit) listControlCount += 2;
+		if (this.props.list.inlineEdit) listControlCount++;
 
 		// set active sort
 		const activeSortPath = this.props.activeSort.paths[0];
 
 		// pad first col when controls are available
-		const cellPad = listControlCount ? (
-			<th className="listcontrol__head" colSpan={listControlCount} />
-		) : null;
+
+		let cellPad = null;
+
+		if (listControlCount) {
+			if (this.props.list.inlineEdit) {
+				cellPad = [<th className="listcontrol__head" colSpan={listControlCount} />, <th className="listcontrol__head" colSpan={listControlCount} />]
+			} else {
+				cellPad = <th className="listcontrol__head" colSpan={listControlCount} />
+			}
+		}
 
 		// map each heading column
 		const cellMap = this.props.columns.map(col => {
