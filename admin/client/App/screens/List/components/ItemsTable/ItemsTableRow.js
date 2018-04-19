@@ -34,7 +34,14 @@ const ItemsRow = React.createClass({
 		};
 	},
 	componentDidMount () {
-		console.log(this.props.item, 'componentWillReceiveProps')
+		var values = {};
+		Object.keys(this.props.item.fields).forEach(key => {
+			console.log(values[key], this.props.item.fields[key])
+			values[key] = this.props.item.fields[key];
+		});
+		this.setState({
+			values: values
+		})
 	},
 	handleChange (event) {
 		console.log(event);
