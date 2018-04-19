@@ -66,8 +66,6 @@ const ItemsRow = React.createClass({
 		
 		var formData = objectToFormData(this.state.values);
 
-		console.log(this.state.values)
-
 		list.updateItem(item.id, formData, (err, data) => {
 			this.props.saveItem(item.id)
 		})
@@ -109,15 +107,14 @@ const ItemsRow = React.createClass({
 		}
 
 		if (this.props.list.inlineEdit) {
-			cells.unshift(
-				this.props.editMode ?
-				(
-					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem()}/>
-				)
-				: (
-					<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>
-				)
-			);
+
+			if(this.props.editMode) {
+				cells.unshift(<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem()}/>)
+				cells.unshift(<ListControl key="_cancelItem" type="cancelItem" onClick={(e) => this.props.cancelItem()}/>)
+			} else {
+				cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>)
+			}
+
 		}
 
 		// add delete/check icon when applicable

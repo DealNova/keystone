@@ -29,6 +29,9 @@ var ListControl = React.createClass({
 		if(this.props.type === 'saveItem') {
 			icon += 'clippy'
 		}
+		if(this.props.type === '_cancelItem') {
+			icon += 'x'
+		}
 
 		var renderButton = (
 			<button type="button" onClick={this.props.onClick} className={className} tabIndex={tabindex}>

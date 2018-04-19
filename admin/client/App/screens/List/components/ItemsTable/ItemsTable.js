@@ -47,7 +47,7 @@ const ItemsTable = React.createClass({
 
 		if (this.props.list.sortable) listControlCount++;
 		if (!this.props.list.nodelete) listControlCount++;
-		if (this.props.list.inlineEdit) listControlCount++;
+		if (this.props.list.inlineEdit) listControlCount += 2;
 
 		// set active sort
 		const activeSortPath = this.props.activeSort.paths[0];

@@ -141,6 +141,11 @@ const ListView = React.createClass({
 			editingItemId: itemId
 		})
 	},
+	cancelItem () {
+		this.setState({
+			editingItemId: null
+		})
+	},
 	saveItem (itemId) {
 		this.props.dispatch(loadItems());
 		this.setState({
@@ -543,6 +548,7 @@ const ListView = React.createClass({
 								editingItemId={this.state.editingItemId}
 								changeEditingItemId={this.changeEditingItemId}
 								saveItem={this.saveItem}
+								cancelItem={this.cancelItem}
 							/>
 							{this.renderNoSearchResults()}
 						</div>
