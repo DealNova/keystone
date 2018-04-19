@@ -163,12 +163,12 @@ var ItemView = React.createClass({
 								data={this.props.data}
 								toggleCreate={this.toggleCreateModal}
 							/>
-							{/* <CreateForm
+							<CreateForm
 								list={this.props.currentList}
 								isOpen={this.state.createIsOpen}
 								onCancel={() => this.toggleCreateModal(false)}
 								onCreate={(item) => this.onCreate(item)}
-							/> */}
+							/>
 							<EditForm
 								list={this.props.currentList}
 								data={this.props.data}
