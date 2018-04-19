@@ -40,6 +40,7 @@ import {
 	setCurrentPage,
 	selectList,
 	clearCachedQuery,
+	loadItems,
 } from './actions';
 
 import { deleteItem, loadItemData, selectItem } from '../Item/actions';
@@ -141,9 +142,7 @@ const ListView = React.createClass({
 		})
 	},
 	saveItem (itemId) {
-		console.log(itemId)
-		this.props.dispatch(selectItem(itemId));
-		this.props.dispatch(loadItemData())
+		dispatch(loadItems());
 		this.setState({
 			editingItemId: null
 		})
