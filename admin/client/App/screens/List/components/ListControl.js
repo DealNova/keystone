@@ -23,7 +23,7 @@ var ListControl = React.createClass({
 		if (this.props.type === 'sortable') {
 			icon += 'three-bars';
 		}
-		if (this.props.type === 'editable') {
+		if (this.props.type === 'inlineEdit') {
 			icon += 'pencil';
 		}
 

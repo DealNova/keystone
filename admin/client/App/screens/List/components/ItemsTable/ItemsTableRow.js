@@ -48,10 +48,8 @@ const ItemsRow = React.createClass({
 			cells.unshift(<ListControl key="_sort" type="sortable" dragSource={this.props.connectDragSource} />);
 		}
 
-		console.log(this.props.editable)
-
-		if (this.props.editable) {
-			cells.unshift(<ListControl key="_editable" type="editable"/>);
+		if (this.props.list.inlineEdit) {
+			cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit"/>);
 		}
 
 		// add delete/check icon when applicable
