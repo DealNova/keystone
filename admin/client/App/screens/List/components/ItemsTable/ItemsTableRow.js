@@ -48,6 +48,7 @@ const ItemsRow = React.createClass({
 		})
 	},
 	handleChange (event) {
+		console.log(event, 'event')
 		var values = assign({}, this.state.values);
 		values[event.path] = event.value;
 		this.setState({
