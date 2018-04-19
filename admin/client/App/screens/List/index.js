@@ -527,6 +527,7 @@ const ListView = React.createClass({
 								pageSize={this.props.lists.page.size}
 								drag={this.props.lists.drag}
 								dispatch={this.props.dispatch}
+								editable={true}
 							/>
 							{this.renderNoSearchResults()}
 						</div>

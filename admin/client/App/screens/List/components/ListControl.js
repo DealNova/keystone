@@ -23,6 +23,9 @@ var ListControl = React.createClass({
 		if (this.props.type === 'sortable') {
 			icon += 'three-bars';
 		}
+		if (this.props.type === 'editable') {
+			icon += 'pencil';
+		}
 
 		var renderButton = (
 			<button type="button" onClick={this.props.onClick} className={className} tabIndex={tabindex}>
