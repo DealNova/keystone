@@ -48,9 +48,17 @@ const ItemsRow = React.createClass({
 		})
 	},
 	handleChange (event) {
-		console.log(event, 'event')
 		var values = assign({}, this.state.values);
-		values[event.path] = event.value;
+
+		console.log(event)
+
+		// if event is a file
+		if(event.file) {
+			// values['photo'] = event.file;
+		} else {
+			values[event.path] = event.value;
+		}
+		
 		this.setState({
 			values: values
 		});

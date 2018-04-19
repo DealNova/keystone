@@ -155,7 +155,7 @@ module.exports = Field.create({
 				loading: false,
 				userSelectedFile: file,
 			});
-			this.props.onChange({ file: file });
+			this.props.onChange({ file: file, path: this.props.path });
 		};
 	},
 
