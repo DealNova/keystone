@@ -29,8 +29,16 @@ const ItemsRow = React.createClass({
 		connectDragPreview: React.PropTypes.func, // eslint-disable-line react/sort-prop-types
 	},
 	getInitialState () {
+
+		var values = {};
+		
+		Object.keys(this.props.items.fields).forEach(key => {
+			console.log(key, this.props.items.fields[key])
+			values[key] = this.props.items.fields[key]
+		});
+
 		return {
-			values: {},
+			values: values,
 		};
 	},
 	handleChange (event) {
