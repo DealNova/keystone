@@ -38,14 +38,15 @@ const ItemsRow = React.createClass({
 		});
 
 		console.log(this.props.list, 'this.props.list')
-		alert(JSON.stringify(this.props.list))
 
 		// item fields
 		var cells = this.props.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			var linkTo = !i ? `${Keystone.adminPath}/${this.props.list.path}/${itemId}` : undefined;
-			console.log(Fields[col.type])
-			return <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />;
+			var FieldComponent = Fields[col.field.type];
+			return (
+				this.props.editMode ? <FieldComponent /> : <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />
+			);
 		});
 
 		// add sortable icon when applicable
