@@ -512,7 +512,7 @@ const ListView = React.createClass({
 						</Center>
 					) : (
 						<div>
-							{/* <ItemsTable
+							<ItemsTable
 								activeSort={this.props.active.sort}
 								checkedItems={this.state.checkedItems}
 								checkTableItem={this.checkTableItem}
@@ -527,7 +527,7 @@ const ListView = React.createClass({
 								pageSize={this.props.lists.page.size}
 								drag={this.props.lists.drag}
 								dispatch={this.props.dispatch}
-							/> */}
+							/>
 							{this.renderNoSearchResults()}
 						</div>
 					)}
