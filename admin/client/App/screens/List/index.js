@@ -42,7 +42,7 @@ import {
 	clearCachedQuery,
 } from './actions';
 
-import { deleteItem, loadItemData } from '../Item/actions';
+import { deleteItem, loadItemData, selectItem } from '../Item/actions';
 
 const ESC_KEY_CODE = 27;
 
@@ -142,7 +142,8 @@ const ListView = React.createClass({
 	},
 	saveItem (itemId) {
 		console.log(itemId)
-		this.props.dispatch(loadItemData(itemId))
+		this.props.dispatch(selectItem(itemId));
+		this.props.dispatch(loadItemData())
 		this.setState({
 			editingItemId: null
 		})
