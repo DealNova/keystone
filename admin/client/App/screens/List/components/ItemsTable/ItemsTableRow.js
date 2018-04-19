@@ -47,7 +47,14 @@ const ItemsRow = React.createClass({
 		})
 	},
 	handleChange (event) {
-		console.log(event);
+		var values = assign({}, this.state.values);
+		values[event.path] = event.value;
+		this.setState({
+			values: values
+		});
+	},
+	saveItem () {
+		console.log(this.state.values, this.props.list)	
 	},
 	getFieldProps (field) {
 		var props = assign({}, field);
@@ -67,8 +74,6 @@ const ItemsRow = React.createClass({
 			'ItemList__row--success': this.props.rowAlert.success === itemId,
 			'ItemList__row--failure': this.props.rowAlert.fail === itemId,
 		});
-
-		console.log(item, 'this.props.list')
 
 		// item fields
 		var cells = this.props.columns.map((col, i) => {
@@ -91,7 +96,7 @@ const ItemsRow = React.createClass({
 			cells.unshift(
 				this.props.editMode ?
 				(
-					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.props.saveItem(item.id)}/>
+					<ListControl key="_saveItemm" type="saveItem" onClick={(e) => this.saveItem(item.id)}/>
 				)
 				: (
 					<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>
