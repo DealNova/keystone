@@ -534,7 +534,7 @@ const ListView = React.createClass({
 								drag={this.props.lists.drag}
 								dispatch={this.props.dispatch}
 								editingItemId={this.state.editingItemId}
-								onEditClick={this.changeEditingItemId}
+								changeEditingItemId={this.changeEditingItemId}
 							/>
 							{this.renderNoSearchResults()}
 						</div>
