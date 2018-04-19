@@ -40,7 +40,7 @@ const ItemsRow = React.createClass({
 		var cells = this.props.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			var linkTo = !i ? `${Keystone.adminPath}/${this.props.list.path}/${itemId}` : undefined;
-			return <ColumnType key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />;
+			return <ColumnType editMode={this.props.editMode} key={col.path} list={this.props.list} col={col} data={item} linkTo={linkTo} />;
 		});
 
 		// add sortable icon when applicable
@@ -49,7 +49,7 @@ const ItemsRow = React.createClass({
 		}
 
 		if (this.props.list.inlineEdit) {
-			cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit"/>);
+			cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>);
 		}
 
 		// add delete/check icon when applicable

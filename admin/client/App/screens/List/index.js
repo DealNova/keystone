@@ -60,6 +60,7 @@ const ListView = React.createClass({
 			manageMode: false,
 			showCreateForm: false,
 			showUpdateForm: false,
+			editingItemId: null
 		};
 	},
 	componentWillMount () {
@@ -133,6 +134,11 @@ const ListView = React.createClass({
 		// If the current page index is the same as the index we are intending to pass to redux, bail out.
 		if (i === this.props.lists.page.index) return;
 		return this.props.dispatch(setCurrentPage(i));
+	},
+	changeEditingItemId (itemId) {
+		this.setState({
+			editingItemId: itemId
+		})
 	},
 	toggleManageMode (filter = !this.state.manageMode) {
 		this.setState({
@@ -527,7 +533,8 @@ const ListView = React.createClass({
 								pageSize={this.props.lists.page.size}
 								drag={this.props.lists.drag}
 								dispatch={this.props.dispatch}
-								editable={true}
+								editingItemId={this.state.editingItemId}
+								onEditClick={this.changeEditingItemId}
 							/>
 							{this.renderNoSearchResults()}
 						</div>

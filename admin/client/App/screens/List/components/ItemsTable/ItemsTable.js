@@ -110,6 +110,7 @@ const ItemsTable = React.createClass({
 							sortOrder={item.sortOrder || 0}
 							id={item.id}
 							item={item}
+							editMode={item.id == this.props.editingItemId}
 							{...this.props}
 						/>
 					);
