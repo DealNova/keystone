@@ -42,7 +42,7 @@ const ItemsRow = React.createClass({
 
 		for ( var key in fields ) {
 
-			const column = columns.map(itemColumn => itemColumn.path == key) || {};
+			const column = columns.find(itemColumn => itemColumn.path == key) || {};
 			
 			if(column.type == 'relationship') {
 				values[key] = fields[key].id;
