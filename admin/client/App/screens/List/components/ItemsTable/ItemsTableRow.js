@@ -37,11 +37,19 @@ const ItemsRow = React.createClass({
 	componentDidMount () {
 		var values = {};
 
-		var fields = assign({}, this.props.item.fields)
+		var fields = assign({}, this.props.item.fields);
+		var { columns } = this.props;
 
 		for ( var key in fields ) {
-			console.log(fields[key], key, this.props.columns)
-			values[key] = fields[key];
+
+			const column = columns.map(itemColumn => itemColumn.path == key) || {};
+			
+			if(column.type == 'relationship') {
+				values[key] = fields[key].id;
+			} else {
+				values[key] = fields[key];
+			}
+
 		}
 
 		this.setState({
