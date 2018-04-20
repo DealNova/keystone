@@ -59,7 +59,7 @@ const ItemsTable = React.createClass({
 		if (listControlCount) {
 
 			for ( var count = 0; count < listControlCount; count++ ) {
-				cellPad.push(<th className="listcontrol__head" colSpan={listControlCount} />)
+				cellPad.push(<th className="listcontrol__head" colSpan={1} />)
 			}
 
 		}
