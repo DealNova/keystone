@@ -50,6 +50,8 @@ const ItemsRow = React.createClass({
 				values[key] = fields[key];
 			}
 
+			console.log(column, values)
+
 		}
 
 		this.setState({
