@@ -54,7 +54,7 @@ const ItemsTable = React.createClass({
 
 		// pad first col when controls are available
 
-		let cellPad = null;
+		let cellPad = [];
 
 		if (listControlCount) {
 
