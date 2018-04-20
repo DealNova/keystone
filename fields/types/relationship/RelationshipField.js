@@ -98,6 +98,7 @@ module.exports = Field.create({
 				value: null,
 			});
 		};
+		console.log(values, 'values')
 		values = Array.isArray(values) ? values : values.split(',');
 		const cachedValues = values.map(i => this._itemsCache[i]).filter(i => i);
 		if (cachedValues.length === values.length) {
