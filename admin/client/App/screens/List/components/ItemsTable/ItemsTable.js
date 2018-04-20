@@ -47,7 +47,7 @@ const ItemsTable = React.createClass({
 
 		if (this.props.list.sortable) listControlCount++;
 		if (!this.props.list.nodelete) listControlCount++;
-		if (this.props.list.inlineEdit) listControlCount++;
+		if (this.props.list.inlineEdit) listControlCount += 2;
 
 		// set active sort
 		const activeSortPath = this.props.activeSort.paths[0];
@@ -57,11 +57,11 @@ const ItemsTable = React.createClass({
 		let cellPad = null;
 
 		if (listControlCount) {
-			if (this.props.list.inlineEdit) {
-				cellPad = [<th className="listcontrol__head" colSpan={listControlCount} />, <th className="listcontrol__head" colSpan={listControlCount} />]
-			} else {
-				cellPad = <th className="listcontrol__head" colSpan={listControlCount} />
+
+			for ( var count = 0; count < listControlCount; count++ ) {
+				cellPad.push(<th className="listcontrol__head" colSpan={listControlCount} />)
 			}
+
 		}
 
 		// map each heading column
