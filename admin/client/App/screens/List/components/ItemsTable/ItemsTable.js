@@ -59,6 +59,8 @@ const ItemsTable = React.createClass({
 		if (listControlCount) {
 			if (this.props.list.inlineEdit) {
 				cellPad = [<th className="listcontrol__head" colSpan={listControlCount} />, <th className="listcontrol__head" colSpan={listControlCount} />]
+			} else {
+				cellPad = <th className="listcontrol__head" colSpan={listControlCount} />
 			}
 		}
 
