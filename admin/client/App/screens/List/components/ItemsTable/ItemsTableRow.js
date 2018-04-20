@@ -37,10 +37,10 @@ const ItemsRow = React.createClass({
 	componentDidMount () {
 		var values = {};
 
-		var fields = assign({}, this.props.item.fields, this.props.item.columns)
+		var fields = assign({}, this.props.item.fields)
 
 		for ( var key in fields ) {
-			console.log(fields[key], key)
+			console.log(fields[key], key, this.props.item.columns)
 			values[key] = fields[key];
 		}
 
