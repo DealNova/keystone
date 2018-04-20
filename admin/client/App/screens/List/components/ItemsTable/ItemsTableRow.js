@@ -45,7 +45,7 @@ const ItemsRow = React.createClass({
 			const column = columns.find(itemColumn => itemColumn.path == key) || {};
 			
 			// if relationship type then set id as value
-			
+
 			if(column.type == 'relationship') {
 				values[key] = fields[key].id;
 			} else {
@@ -88,6 +88,7 @@ const ItemsRow = React.createClass({
 		props.onChange = this.handleChange;
 		props.mode = 'create';
 		props.key = field.path;
+		props.hideLabel = true;
 		return props;
 	},
 	renderRow (item) {
