@@ -44,13 +44,13 @@ const ItemsRow = React.createClass({
 
 			const column = columns.find(itemColumn => itemColumn.path == key) || {};
 			
+			// if relationship type then set id as value
+			
 			if(column.type == 'relationship') {
 				values[key] = fields[key].id;
 			} else {
 				values[key] = fields[key];
 			}
-
-			console.log(column, values)
 
 		}
 
