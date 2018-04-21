@@ -44,7 +44,7 @@ module.exports = function (req, res) {
 			query.populate(i.path);
 		});
 	}
-	console.log(typeof req.list.get('noedit'))
+	console.log(typeof req.list.get('noedit'), "req.list.get('noedit')")
 	if(typeof req.list.get('noedit') === 'function') {
         req.list.set('noedit', req.list.get('noedit')(req));
     }
