@@ -64,9 +64,6 @@ const ItemsRow = React.createClass({
 			values: values
 		})
 	},
-	// componentDidMount () {
-	// 	this.prepopulateInput()
-	// },
 	handleChange (event) {
 		var values = assign({}, this.state.values);
 
