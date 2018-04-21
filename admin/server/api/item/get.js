@@ -17,11 +17,7 @@ module.exports = function (req, res) {
 		return res.status(401).json({ error: 'fields must be undefined, a string, or an array' });
 	}
 
-	console.log(typeof req.list.get('noedit'), "req.list.get('noedit')")
-	console.log(req.list.get('noedit'), req.list.get('noeditcheck'))
-
 	if(typeof req.list.get('noeditcheck') === 'function') {
-		console.log(req.list.get('noedit'), req.list.get('noeditcheck'), 'inside')
         req.list.set('noedit', req.list.get('noeditcheck')(req));
     }
 
