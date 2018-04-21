@@ -18,8 +18,10 @@ module.exports = function (req, res) {
 	}
 
 	console.log(typeof req.list.get('noedit'), "req.list.get('noedit')")
+	console.log(req.list.get('noedit'), req.list.get('noeditcheck'))
 
 	if(typeof req.list.get('noeditcheck') === 'function') {
+		console.log(req.list.get('noedit'), req.list.get('noeditcheck'), 'inside')
         req.list.set('noedit', req.list.get('noeditcheck')(req));
     }
 
