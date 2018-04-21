@@ -34,7 +34,13 @@ const ItemsRow = React.createClass({
 			values: {},
 		};
 	},
-	componentDidMount () {
+	componentWillReceiveProps (nextProps) {
+		// if editMode is enabled prepopulate values
+		if(nextProps.editMode && !this.props.editMode) {
+			this.prepopulateInput()
+		}
+	},
+	prepopulateInput () {
 		var values = {};
 
 		var fields = assign({}, this.props.item.fields);
@@ -58,6 +64,9 @@ const ItemsRow = React.createClass({
 			values: values
 		})
 	},
+	// componentDidMount () {
+	// 	this.prepopulateInput()
+	// },
 	handleChange (event) {
 		var values = assign({}, this.state.values);
 
