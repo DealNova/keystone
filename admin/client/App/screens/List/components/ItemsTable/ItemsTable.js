@@ -48,7 +48,7 @@ const ItemsTable = React.createClass({
 
 		if (this.props.list.sortable) listControlCount++;
 		if (!this.props.list.nodelete) listControlCount++;
-		if (this.props.list.inlineEdit) listControlCount += 2;
+		if (this.props.list.inlineEdit && !this.props.list.noedit) listControlCount += 2;
 
 		// set active sort
 		const activeSortPath = this.props.activeSort.paths[0];
@@ -118,7 +118,7 @@ const ItemsTable = React.createClass({
 							sortOrder={item.sortOrder || 0}
 							id={item.id}
 							item={item}
-							editMode={item.id == this.props.editingItemId}
+							editMode={(item.id == this.props.editingItemId) && !this.props.list.noedit}
 							{...this.props}
 						/>
 					);
