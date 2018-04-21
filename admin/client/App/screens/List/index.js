@@ -61,7 +61,8 @@ const ListView = React.createClass({
 			manageMode: false,
 			showCreateForm: false,
 			showUpdateForm: false,
-			editingItemId: null
+			editingItemId: null,
+			alerts: {}
 		};
 	},
 	componentWillMount () {
@@ -151,6 +152,23 @@ const ListView = React.createClass({
 		this.setState({
 			editingItemId: null
 		})
+	},
+	setError (err) {
+		if (!err) {
+			err = {
+				error: 'connection error',
+			};
+		}
+		// If we get a database error, show the database error message
+		// instead of only saying "Database error"
+		if (err.error === 'database error') {
+			err.error = err.detail.errmsg;
+		}
+		this.setState({
+			alerts: {
+				error: err,
+			},
+		});
 	},
 	toggleManageMode (filter = !this.state.manageMode) {
 		this.setState({
@@ -549,6 +567,8 @@ const ListView = React.createClass({
 								changeEditingItemId={this.changeEditingItemId}
 								saveItem={this.saveItem}
 								cancelItem={this.cancelItem}
+								alerts={this.state.alerts}
+								setError={this.setError}
 							/>
 							{this.renderNoSearchResults()}
 						</div>

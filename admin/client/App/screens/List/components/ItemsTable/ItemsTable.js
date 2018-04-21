@@ -3,6 +3,7 @@ import classnames from 'classnames';
 
 import TableRow from './ItemsTableRow';
 import DragDrop from './ItemsTableDragDrop';
+import AlertMessages from '../../../../shared/AlertMessages';
 
 import { TABLE_CONTROL_COLUMN_WIDTH } from '../../../../../constants';
 
@@ -127,7 +128,7 @@ const ItemsTable = React.createClass({
 
 		return (
 			<div className="ItemList-wrapper">
-				<h1>This is a error</h1>
+				<AlertMessages alerts={this.props.alerts} />
 				<table cellPadding="0" cellSpacing="0" className="Table ItemList">
 					{this.renderCols()}
 					{this.renderHeaders()}
