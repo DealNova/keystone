@@ -16,6 +16,9 @@ module.exports = function (req, res) {
 	if (fields && !Array.isArray(fields)) {
 		return res.status(401).json({ error: 'fields must be undefined, a string, or an array' });
 	}
+	if(typeof req.list.get('noedit') === 'function') {
+        req.list.set('noedit', req.list.get('noedit')(req));
+    }
 
 	query.exec(function (err, item) {
 
