@@ -45,8 +45,8 @@ module.exports = function (req, res) {
 		});
 	}
 	console.log(typeof req.list.get('noedit'), "req.list.get('noedit')")
-	if(typeof req.list.get('noedit') === 'function') {
-        req.list.set('noedit', req.list.get('noedit')(req));
+	if(typeof req.list.get('noeditcheck') === 'function') {
+        req.list.set('noedit', req.list.get('noeditcheck')(req));
     }
 	var sort = req.list.expandSort(req.query.sort);
 	async.waterfall(
