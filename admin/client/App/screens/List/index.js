@@ -144,15 +144,13 @@ const ListView = React.createClass({
 	},
 	cancelItem () {
 		this.setState({
-			editingItemId: null
+			editingItemId: null,
+			alerts: {}
 		})
 	},
 	saveItem (itemId) {
 		this.props.dispatch(loadItems());
-		this.setState({
-			editingItemId: null,
-			alerts: {}
-		})
+		this.cancelItem();
 	},
 	setError (err) {
 		if (!err) {
