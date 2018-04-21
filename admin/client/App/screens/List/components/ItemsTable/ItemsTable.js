@@ -127,6 +127,7 @@ const ItemsTable = React.createClass({
 
 		return (
 			<div className="ItemList-wrapper">
+				<h1>This is a error</h1>
 				<table cellPadding="0" cellSpacing="0" className="Table ItemList">
 					{this.renderCols()}
 					{this.renderHeaders()}
