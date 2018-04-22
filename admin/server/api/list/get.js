@@ -45,20 +45,6 @@ module.exports = function (req, res) {
 		});
 	}
 
-	// group checks
-
-	if(typeof req.list.get('noeditcheck') === 'function') {
-        req.list.set('noedit', req.list.get('noeditcheck')(req));
-	}
-	
-	if(typeof req.list.get('nodeletecheck') === 'function') {
-        req.list.set('nodelete', req.list.get('nodeletecheck')(req));
-	}
-	
-	if(typeof req.list.get('hiddencheck') === 'function') {
-        req.list.set('hidden', req.list.get('hiddencheck')(req));
-    }
-
 	var sort = req.list.expandSort(req.query.sort);
 	async.waterfall(
 		[
