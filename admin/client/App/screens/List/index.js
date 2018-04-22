@@ -316,6 +316,10 @@ const ListView = React.createClass({
 					columnsActive={this.props.active.columns}
 					columnsAvailable={this.props.currentList.columns}
 				/>
+				<ListFilters
+					dispatch={this.props.dispatch}
+					filters={this.props.active.filters}
+ 				/>
 			</Container>
 		);
 	},
