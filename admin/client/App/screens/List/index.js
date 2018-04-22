@@ -315,6 +315,9 @@ const ListView = React.createClass({
 					// columns
 					columnsActive={this.props.active.columns}
 					columnsAvailable={this.props.currentList.columns}
+					onApply={() => {
+						this.props.dispatch(setCurrentPage(1))
+					}}
 				/>
 				<ListFilters
 					dispatch={this.props.dispatch}
