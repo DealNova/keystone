@@ -25,6 +25,7 @@ const classes = {
 };
 
 const App = (props) => {
+	console.log(Keystone.user)
 	const listsByPath = require('../utils/lists').listsByPath;
 	let children = props.children;
 	// If we're on either a list or an item view
