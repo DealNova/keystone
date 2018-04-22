@@ -315,10 +315,10 @@ const ListView = React.createClass({
 					// columns
 					columnsActive={this.props.active.columns}
 					columnsAvailable={this.props.currentList.columns}
-				/>
-				<ListFilters
-					dispatch={this.props.dispatch}
-					filters={this.props.active.filters}
+					onApply={() => {
+						console.log('onApply')
+						this.props.dispatch(setCurrentPage(0))
+					}}
 				/>
 			</Container>
 		);
