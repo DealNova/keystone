@@ -365,7 +365,7 @@ const ListView = React.createClass({
 		this.props.currentList.loadItems(
 			{
 				expandRelationshipFilters: false,
-				filters: {},
+				filters: this.props.active.filters,
 				limits: { size: 1000000, select: 'id' },
 			},
 			function (err, data) {
