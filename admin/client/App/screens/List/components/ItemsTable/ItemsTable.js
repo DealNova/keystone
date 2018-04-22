@@ -126,8 +126,6 @@ const ItemsTable = React.createClass({
 			</tbody>
 		);
 
-		console.log(this.props.list)
-
 		return (
 			<div className="ItemList-wrapper">
 				<AlertMessages alerts={this.props.alerts} />
