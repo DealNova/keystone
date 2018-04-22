@@ -92,7 +92,7 @@ function ListHeaderToolbar ({
 							dispatch={dispatch}
 							activeFilters={filtersActive}
 							availableFilters={filtersAvailable}
-							onApply={this.props.onApply}
+							onApply={props.onApply}
 						/>
 					</Section>
 					<Section aphroditeStyles={classes.columns}>
