@@ -356,7 +356,7 @@ const ListView = React.createClass({
 	checkAllItems () {
 		const checkedItems = { ...this.state.checkedItems };
 
-		console.log(this.props.active.filters)
+		console.log(this.props.active.filters, 'this.props.active.filters')
 
 		// Just in case this API call takes a long time, we'll update the select all button with
 		// a spinner.
