@@ -128,7 +128,7 @@ const ItemsRow = React.createClass({
 			cells.unshift(<ListControl key="_sort" type="sortable" dragSource={this.props.connectDragSource} />);
 		}
 
-		if (this.props.list.inlineEdit) {
+		if (this.props.list.inlineEdit && (this.props.list.noedit !== true)) {
 
 			if(this.props.editMode) {
 				cells.unshift(<ListControl key="_cancelItem" type="cancelItem" onClick={(e) => this.props.cancelItem()}/>)
