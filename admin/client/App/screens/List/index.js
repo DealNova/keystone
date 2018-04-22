@@ -317,7 +317,7 @@ const ListView = React.createClass({
 					columnsAvailable={this.props.currentList.columns}
 					onApply={() => {
 						console.log('onApply')
-						this.props.dispatch(setCurrentPage(0))
+						this.props.dispatch(setCurrentPage(1))
 					}}
 				/>
 			</Container>
