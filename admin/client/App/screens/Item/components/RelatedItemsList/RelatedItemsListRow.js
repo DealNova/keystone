@@ -31,6 +31,19 @@ class RelatedItemsListRow extends Component {
 	}
 
 	prepopulateInput = (fields) => {
+		
+		let values = {};
+		const { columns = [] } = this.props.refList;
+
+		for ( let key in fields ) {
+			const selectedColumn = columns.find(column => column.path == key);
+
+			if(selectedColumn.field.type !== 'password') {
+				values[key] = fields[key] || selectedColumn.field.defaultValue
+			}
+
+		}
+
 		this.setState({
 			values: fields
 		})
@@ -76,8 +89,10 @@ class RelatedItemsListRow extends Component {
 	}
 
 	getFieldProps = (field) => {
+		const { fields = {} } = this.props.item || {}
+
 		var props = assign({}, field);
-		props.value = this.state.values[field.path];
+		props.value = this.state.values[field.path] || fields[field.path] || '';
 		props.values = this.state.values;
 		props.onChange = this.handleChange;
 		props.mode = 'create';

@@ -49,8 +49,6 @@ const ItemsRow = React.createClass({
 	},
 	prepopulateInput (fields) {
 
-		console.log(this.props.list.columns)
-
 		let values = {};
 		const { columns = [] } = this.props.list;
 
