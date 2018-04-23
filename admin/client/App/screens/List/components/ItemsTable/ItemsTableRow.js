@@ -95,8 +95,11 @@ const ItemsRow = React.createClass({
 		})
 	},
 	getFieldProps (field) {
+
+		const { fields = {} } = this.props.item || {}
+
 		var props = assign({}, field);
-		props.value = this.state.values[field.path] || this.props.fields[field.path] || '';
+		props.value = this.state.values[field.path] || fields[field.path] || '';
 		props.values = this.state.values;
 		props.onChange = this.handleChange;
 		props.mode = 'create';
