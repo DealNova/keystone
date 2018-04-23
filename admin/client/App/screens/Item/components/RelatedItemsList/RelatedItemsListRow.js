@@ -82,10 +82,20 @@ class RelatedItemsListRow extends Component {
 
 	saveItem = () => {
 		const { refList, item } = this.props;
-		
-		var formData = objectToFormData(this.state.values);
 
-		console.log(this.state.values, 'this.state.values')
+		const filteredValues = {};
+		const { values } = this.state;
+
+		for ( let key in values ) {
+			if(typeof values[key] !== 'undefined') {
+				filteredValues[key] = values[key]
+			}
+		}
+		
+		
+		var formData = objectToFormData(filteredValues);
+
+		console.log(filteredValues, 'filteredValues')
 
 		refList.updateItem(item.id, formData, (err, data) => {
 			if(data) {
