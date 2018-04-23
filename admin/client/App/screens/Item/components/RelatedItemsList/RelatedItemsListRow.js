@@ -33,22 +33,30 @@ class RelatedItemsListRow extends Component {
 
 		console.log(columns, 'columns', fields)
 
-		for ( var key in fields ) {
-
-			const column = columns.find(itemColumn => itemColumn.path == key) || {};
-			
-			// if relationship type then set id as value
-
+		columns.forEach(column => {
 			if(column.type == 'relationship') {
 				values[key] = fields[key].id;
 			} else {
 				values[key] = fields[key];
 			}
+		})
 
-		}
+		// for ( var key in fields ) {
+
+		// 	const column = columns.find(itemColumn => itemColumn.path == key) || {};
+			
+		// 	// if relationship type then set id as value
+
+		// 	if(column.type == 'relationship') {
+		// 		values[key] = fields[key].id;
+		// 	} else {
+		// 		values[key] = fields[key];
+		// 	}
+
+		// }
 
 		this.setState({
-			values: values
+			values
 		})
 	}
 
