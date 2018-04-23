@@ -51,8 +51,22 @@ const ItemsRow = React.createClass({
 
 		console.log(this.props.list.columns)
 
+		let values = {};
+		const { columns = [] } = this.props.list;
+
+		for ( let key in fields ) {
+			const selectedColumn = columns.find(column => column.path == key);
+
+			if(selectedColumn.field.type !== 'password') {
+				values[key] = fields[key]
+			}
+
+		}
+
+		console.log(values)
+
 		this.setState({
-			values: fields
+			values
 		})
 	},
 	handleChange (event) {
