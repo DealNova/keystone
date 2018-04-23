@@ -25,35 +25,15 @@ class RelatedItemsListRow extends Component {
 
 			refList.loadItem(item.id, { drilldown: true }, (err, itemData) => {
 				if(!err) {
-					this.prepopulateInput(itemData.field)
+					this.prepopulateInput(itemData.fields)
 				}
 			})
 		}
 	}
 
 	prepopulateInput = (fields) => {
-		var values = {};
-		// use real list column then just the default
-		var { columns } = this.props.refList;
-
-		for ( var key in fields ) {
-
-			const column = columns.find(itemColumn => itemColumn.path == key) || {};
-			
-			// if relationship type then set id as value
-
-			if(column.field.type == 'relationship') {
-				values[key] = fields[key].id;
-			} else {
-				values[key] = fields[key];
-			}
-
-		}
-
-		console.log(values, 'prepopulateInput')
-
 		this.setState({
-			values
+			values: fields
 		})
 	}
 
