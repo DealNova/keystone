@@ -117,7 +117,7 @@ const RelatedItemsList = React.createClass({
 
 		let listControlCount = 0;
 
-		if (this.props.list.inlineEdit && (this.props.list.noedit !== true)) listControlCount += 2;
+		if (this.props.refList.inlineEdit && (this.props.refList.noedit !== true)) listControlCount += 2;
 
 		// pad first col when controls are available
 
