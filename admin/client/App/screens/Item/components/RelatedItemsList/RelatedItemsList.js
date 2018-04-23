@@ -75,11 +75,12 @@ const RelatedItemsList = React.createClass({
 			<tbody>
 				{this.props.items.results.map((item) => {
 					return (<ListRow
+						{...this.props}
 						key={item.id}
 						columns={this.state.columns}
 						item={item}
 						editMode={(item.id == this.props.editingItemId) && (this.props.list.noedit !== true)}
-						{...this.props}
+						saveItem={this.saveItem}
 					/>);
 				})}
 			</tbody>

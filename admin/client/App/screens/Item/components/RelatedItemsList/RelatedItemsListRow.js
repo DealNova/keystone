@@ -29,7 +29,7 @@ class RelatedItemsListRow extends Component {
 		var values = {};
 
 		var fields = assign({}, this.props.item.fields);
-		var { columns } = this.props;
+		var { columns } = this.props.refList;
 
 		for ( var key in fields ) {
 
