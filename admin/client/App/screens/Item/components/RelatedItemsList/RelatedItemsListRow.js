@@ -20,6 +20,21 @@ class RelatedItemsListRow extends Component {
 			return <ColumnType key={col.path} list={refList} col={col} data={item} linkTo={linkTo} />;
 		});
 
+		console.log(refList, 'refList');
+
+		// add inline edit icon when applicable
+		if (refList.inlineEdit && (refList.list.noedit !== true)) {
+
+			if(this.props.editMode) {
+				cells.unshift(<ListControl key="_cancelItem" type="cancelItem" onClick={(e) => this.props.cancelItem()}/>)
+				cells.unshift(<ListControl key="_saveItem" type="saveItem" onClick={(e) => this.saveItem()}/>)
+			} else {
+				cells.unshift(<td></td>)
+				cells.unshift(<ListControl key="_inlineEdit" type="inlineEdit" onClick={(e) => this.props.changeEditingItemId(item.id)}/>)
+			}
+
+		}
+
 		// add sortable icon when applicable
 		if (connectDragSource) {
 			cells.unshift(<ListControl key="_sort" type="sortable" dragSource={connectDragSource} />);
