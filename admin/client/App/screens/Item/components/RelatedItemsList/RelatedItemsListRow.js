@@ -31,29 +31,30 @@ class RelatedItemsListRow extends Component {
 		var fields = assign({}, this.props.item.fields);
 		var { columns } = this.props.refList;
 
-		console.log(columns, 'columns', fields, this.props.item)
+		// console.log(columns, 'columns', fields, this.props.item)
 
-		columns.forEach(column => {
-			if(column.type == 'relationship') {
-				values[column.path] = fields[column.path].id;
-			} else {
-				values[column.path] = fields[column.path];
-			}
-		})
-
-		// for ( var key in fields ) {
-
-		// 	const column = columns.find(itemColumn => itemColumn.path == key) || {};
-			
-		// 	// if relationship type then set id as value
-
+		// columns.forEach(column => {
+		// 	console.log(column.type)
 		// 	if(column.type == 'relationship') {
-		// 		values[key] = fields[key].id;
+		// 		values[column.path] = fields[column.path].id;
 		// 	} else {
-		// 		values[key] = fields[key];
+		// 		values[column.path] = fields[column.path];
 		// 	}
+		// })
 
-		// }
+		for ( var key in fields ) {
+
+			const column = columns.find(itemColumn => itemColumn.path == key) || {};
+			
+			// if relationship type then set id as value
+
+			if(column.type == 'relationship') {
+				values[key] = fields[key].id;
+			} else {
+				values[key] = fields[key];
+			}
+
+		}
 
 		this.setState({
 			values
