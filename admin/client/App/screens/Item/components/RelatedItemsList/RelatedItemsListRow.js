@@ -31,6 +31,8 @@ class RelatedItemsListRow extends Component {
 		var fields = assign({}, this.props.item.fields);
 		var { columns } = this.props.refList;
 
+		console.log(columns, 'columns')
+
 		for ( var key in fields ) {
 
 			const column = columns.find(itemColumn => itemColumn.path == key) || {};
@@ -69,6 +71,8 @@ class RelatedItemsListRow extends Component {
 		const { refList, item } = this.props;
 		
 		var formData = objectToFormData(this.state.values);
+
+		console.log(this.state.values, 'this.state.values')
 
 		refList.updateItem(item.id, formData, (err, data) => {
 			if(data) {
