@@ -137,6 +137,10 @@ const RelatedItemsList = React.createClass({
 
 		return <thead><tr>{cells}</tr></thead>;
 	},
+	saveItem (itemId) {
+		this.loadItems()
+		this.props.saveItem()
+	},
 	render () {
 		if (this.state.err) {
 			return <div className="Relationship">{this.state.err}</div>;

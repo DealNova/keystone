@@ -20,8 +20,7 @@ import RelatedItemsList from './components/RelatedItemsList/RelatedItemsList';
 
 import {
 	selectItem,
-	loadItemData,
-	loadItems
+	loadItemData
 } from './actions';
 
 import {
@@ -88,7 +87,6 @@ var ItemView = React.createClass({
 		})
 	},
 	saveItem (itemId) {
-		this.props.dispatch(loadItems());
 		this.cancelItem();
 	},
 	setError (err) {
