@@ -58,12 +58,10 @@ const ItemsRow = React.createClass({
 			const selectedColumn = columns.find(column => column.path == key);
 
 			if(selectedColumn.field.type !== 'password') {
-				values[key] = fields[key]
+				values[key] = fields[key] || selectedColumn.field.defaultValue
 			}
 
 		}
-
-		console.log(values)
 
 		this.setState({
 			values
@@ -98,7 +96,7 @@ const ItemsRow = React.createClass({
 	},
 	getFieldProps (field) {
 		var props = assign({}, field);
-		props.value = this.state.values[field.path];
+		props.value = this.state.values[field.path] || '';
 		props.values = this.state.values;
 		props.onChange = this.handleChange;
 		props.mode = 'create';
