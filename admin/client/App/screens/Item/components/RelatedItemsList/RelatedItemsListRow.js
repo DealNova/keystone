@@ -23,7 +23,7 @@ class RelatedItemsListRow extends Component {
 		if(nextProps.editMode && !this.props.editMode) {
 			const { refList, item } = nextProps;
 
-			refList.loadItem(state.item.id, { drilldown: true }, (err, itemData) => {
+			refList.loadItem(item.id, { drilldown: true }, (err, itemData) => {
 				console.log(err, itemData, 'console.log(err, itemData)')
 			})
 
