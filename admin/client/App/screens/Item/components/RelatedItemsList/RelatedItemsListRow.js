@@ -29,20 +29,8 @@ class RelatedItemsListRow extends Component {
 		var values = {};
 
 		var fields = assign({}, this.props.item.fields);
+		// use real list column then just the default
 		var { columns } = this.props.refList;
-
-		console.log(this.props.columns, 'this.props.columns')
-
-		// console.log(columns, 'columns', fields, this.props.item)
-
-		// columns.forEach(column => {
-		// 	console.log(column.type)
-		// 	if(column.type == 'relationship') {
-		// 		values[column.path] = fields[column.path].id;
-		// 	} else {
-		// 		values[column.path] = fields[column.path];
-		// 	}
-		// })
 
 		for ( var key in fields ) {
 
@@ -86,16 +74,14 @@ class RelatedItemsListRow extends Component {
 		const filteredValues = {};
 		const { values } = this.state;
 
+		// filter out any values that are undefined
 		for ( let key in values ) {
 			if(typeof values[key] !== 'undefined') {
 				filteredValues[key] = values[key]
 			}
 		}
 		
-		
 		var formData = objectToFormData(filteredValues);
-
-		console.log(filteredValues, 'filteredValues')
 
 		refList.updateItem(item.id, formData, (err, data) => {
 			if(data) {
