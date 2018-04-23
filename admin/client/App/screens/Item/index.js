@@ -120,7 +120,7 @@ var ItemView = React.createClass({
 						const refList = listsByKey[relationship.ref];
 						const { currentList, params, relationshipData, drag } = this.props;
 
-						console.log(currentList, relationshipData)
+						console.log(currentList, relationshipData[relationship.path], relationship.path])
 
 						return (
 							<RelatedItemsList
