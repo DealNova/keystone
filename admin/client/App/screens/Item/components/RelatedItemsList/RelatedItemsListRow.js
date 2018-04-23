@@ -24,17 +24,15 @@ class RelatedItemsListRow extends Component {
 			const { refList, item } = nextProps;
 
 			refList.loadItem(item.id, { drilldown: true }, (err, itemData) => {
-				console.log(err, itemData, 'console.log(err, itemData)')
+				if(!err) {
+					this.prepopulateInput(itemData.field)
+				}
 			})
-
-			this.prepopulateInput()
 		}
 	}
 
-	prepopulateInput = () => {
+	prepopulateInput = (fields) => {
 		var values = {};
-
-		var fields = assign({}, this.props.item.fields);
 		// use real list column then just the default
 		var { columns } = this.props.refList;
 
