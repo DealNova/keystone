@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import assign from 'object-assign';
 import { DropTarget, DragSource } from 'react-dnd';
 
 import { Columns, Fields } from 'FieldTypes';
