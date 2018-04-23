@@ -35,9 +35,9 @@ class RelatedItemsListRow extends Component {
 
 		columns.forEach(column => {
 			if(column.type == 'relationship') {
-				values[key] = fields[key].id;
+				values[column.path] = fields[column.path].id;
 			} else {
-				values[key] = fields[key];
+				values[column.path] = fields[column.path];
 			}
 		})
 
