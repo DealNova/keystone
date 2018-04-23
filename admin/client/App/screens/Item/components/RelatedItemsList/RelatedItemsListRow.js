@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { DropTarget, DragSource } from 'react-dnd';
 
-import { Columns } from 'FieldTypes';
+import { Columns, Fields } from 'FieldTypes';
 
 import {
 	reorderItems,
@@ -12,12 +12,93 @@ import {
 import ListControl from '../../../List/components/ListControl';
 
 class RelatedItemsListRow extends Component {
+	state = {
+		values: {}
+	}
+
+	componentWillReceiveProps (nextProps) {
+		// if editMode is enabled prepopulate values
+		if(nextProps.editMode && !this.props.editMode) {
+			this.prepopulateInput()
+		}
+	}
+
+	prepopulateInput = () => {
+		var values = {};
+
+		var fields = assign({}, this.props.item.fields);
+		var { columns } = this.props;
+
+		for ( var key in fields ) {
+
+			const column = columns.find(itemColumn => itemColumn.path == key) || {};
+			
+			// if relationship type then set id as value
+
+			if(column.type == 'relationship') {
+				values[key] = fields[key].id;
+			} else {
+				values[key] = fields[key];
+			}
+
+		}
+
+		this.setState({
+			values: values
+		})
+	}
+
+	handleChange = (event) => {
+		var values = assign({}, this.state.values);
+
+		// if event is a file set event.file as value
+		if(event.file) {
+			values[event.path] = event.file;
+		} else {
+			values[event.path] = event.value;
+		}
+		
+		this.setState({
+			values: values
+		});
+	}
+
+	saveItem = () => {
+		const { refList, item } = this.props;
+		
+		var formData = objectToFormData(this.state.values);
+
+		refList.updateItem(item.id, formData, (err, data) => {
+			if(data) {
+				this.props.saveItem(item.id)
+			} else {
+				this.props.setError(err)
+			}
+		})
+	}
+
+	getFieldProps = (field) => {
+		var props = assign({}, field);
+		props.value = this.state.values[field.path];
+		props.values = this.state.values;
+		props.onChange = this.handleChange;
+		props.mode = 'create';
+		props.key = field.path;
+		props.hideLabel = true;
+		return props;
+	}
+
 	render () {
 		const { columns, item, connectDragSource, connectDropTarget, refList, editMode } = this.props;
 		const cells = columns.map((col, i) => {
 			const ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			const linkTo = !i ? `${Keystone.adminPath}/${refList.path}/${item.id}` : undefined;
-			return <ColumnType key={col.path} list={refList} col={col} data={item} linkTo={linkTo} />;
+			var fieldProps = this.getFieldProps(col.field);
+			var FieldComponent = React.createElement(Fields[col.field.type], fieldProps);
+
+			return (
+				this.props.editMode ? <td>{FieldComponent}</td> : <ColumnType key={col.path} list={refList} col={col} data={item} linkTo={linkTo} />
+			);
 		});
 
 		console.log(refList, 'refList');
