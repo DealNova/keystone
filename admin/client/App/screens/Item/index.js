@@ -21,6 +21,7 @@ import RelatedItemsList from './components/RelatedItemsList/RelatedItemsList';
 import {
 	selectItem,
 	loadItemData,
+	loadItems
 } from './actions';
 
 import {
@@ -35,6 +36,8 @@ var ItemView = React.createClass({
 	getInitialState () {
 		return {
 			createIsOpen: false,
+			editingItemId: null,
+			alerts: {}
 		};
 	},
 	componentDidMount () {
@@ -73,6 +76,38 @@ var ItemView = React.createClass({
 			createIsOpen: visible,
 		});
 	},
+	changeEditingItemId (itemId) {
+		this.setState({
+			editingItemId: itemId
+		})
+	},
+	cancelItem () {
+		this.setState({
+			editingItemId: null,
+			alerts: {}
+		})
+	},
+	saveItem (itemId) {
+		this.props.dispatch(loadItems());
+		this.cancelItem();
+	},
+	setError (err) {
+		if (!err) {
+			err = {
+				error: 'connection error',
+			};
+		}
+		// If we get a database error, show the database error message
+		// instead of only saying "Database error"
+		if (err.error === 'database error') {
+			err.error = err.detail.errmsg;
+		}
+		this.setState({
+			alerts: {
+				error: err,
+			},
+		});
+	},
 	// Render this items relationships
 	renderRelationships () {
 		const { relationships } = this.props.currentList;
@@ -96,6 +131,12 @@ var ItemView = React.createClass({
 								items={relationshipData[relationship.path]}
 								dragNewSortOrder={drag.newSortOrder}
 								dispatch={this.props.dispatch}
+								editingItemId={this.state.editingItemId}
+								changeEditingItemId={this.changeEditingItemId}
+								saveItem={this.saveItem}
+								cancelItem={this.cancelItem}
+								alerts={this.state.alerts}
+								setError={this.setError}
 							/>
 						);
 					})}

@@ -13,7 +13,7 @@ import ListControl from '../../../List/components/ListControl';
 
 class RelatedItemsListRow extends Component {
 	render () {
-		const { columns, item, connectDragSource, connectDropTarget, refList } = this.props;
+		const { columns, item, connectDragSource, connectDropTarget, refList, editMode } = this.props;
 		const cells = columns.map((col, i) => {
 			const ColumnType = Columns[col.type] || Columns.__unrecognised__;
 			const linkTo = !i ? `${Keystone.adminPath}/${refList.path}/${item.id}` : undefined;
@@ -23,9 +23,9 @@ class RelatedItemsListRow extends Component {
 		console.log(refList, 'refList');
 
 		// add inline edit icon when applicable
-		if (refList.inlineEdit && (refList.list.noedit !== true)) {
+		if (refList.inlineEdit && (refList.noedit !== true)) {
 
-			if(this.props.editMode) {
+			if(editMode) {
 				cells.unshift(<ListControl key="_cancelItem" type="cancelItem" onClick={(e) => this.props.cancelItem()}/>)
 				cells.unshift(<ListControl key="_saveItem" type="saveItem" onClick={(e) => this.saveItem()}/>)
 			} else {

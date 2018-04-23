@@ -78,7 +78,8 @@ const RelatedItemsList = React.createClass({
 						key={item.id}
 						columns={this.state.columns}
 						item={item}
-						refList={this.props.refList}
+						editMode={(item.id == this.props.editingItemId) && (this.props.list.noedit !== true)}
+						{...this.props}
 					/>);
 				})}
 			</tbody>
@@ -112,6 +113,20 @@ const RelatedItemsList = React.createClass({
 			cells.unshift(
 				<th width={TABLE_CONTROL_COLUMN_WIDTH} key="sortable" />
 			);
+		}
+
+		let listControlCount = 0;
+
+		if (this.props.list.inlineEdit && (this.props.list.noedit !== true)) listControlCount += 2;
+
+		// pad first col when controls are available
+
+		if (listControlCount) {
+
+			for ( var count = 0; count < listControlCount; count++ ) {
+				cells.push(<th width={TABLE_CONTROL_COLUMN_WIDTH} colSpan={1} key={count}/>)
+			}
+
 		}
 
 		return <thead><tr>{cells}</tr></thead>;
