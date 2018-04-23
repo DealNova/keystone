@@ -21,6 +21,12 @@ class RelatedItemsListRow extends Component {
 	componentWillReceiveProps (nextProps) {
 		// if editMode is enabled prepopulate values
 		if(nextProps.editMode && !this.props.editMode) {
+			const { refList, item } = nextProps;
+
+			refList.loadItem(state.item.id, { drilldown: true }, (err, itemData) => {
+				console.log(err, itemData, 'console.log(err, itemData)')
+			})
+
 			this.prepopulateInput()
 		}
 	}
@@ -37,8 +43,6 @@ class RelatedItemsListRow extends Component {
 			const column = columns.find(itemColumn => itemColumn.path == key) || {};
 			
 			// if relationship type then set id as value
-
-			console.log(values[key], fields[key], column, 'values[key], fields[key], column')
 
 			if(column.field.type == 'relationship') {
 				values[key] = fields[key].id;
@@ -115,8 +119,6 @@ class RelatedItemsListRow extends Component {
 				this.props.editMode ? <td>{FieldComponent}</td> : <ColumnType key={col.path} list={refList} col={col} data={item} linkTo={linkTo} />
 			);
 		});
-
-		console.log(refList, 'refList');
 
 		// add inline edit icon when applicable
 		if (refList.inlineEdit && (refList.noedit !== true)) {
