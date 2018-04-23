@@ -50,6 +50,8 @@ class RelatedItemsListRow extends Component {
 
 		}
 
+		console.log(values, 'prepopulateInput')
+
 		this.setState({
 			values
 		})
