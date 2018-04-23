@@ -123,13 +123,17 @@ const RelatedItemsList = React.createClass({
 
 		// pad first col when controls are available
 
+		console.log(listControlCount)
+
 		if (listControlCount) {
 
 			for ( var count = 0; count < listControlCount; count++ ) {
-				cells.push(<th width={TABLE_CONTROL_COLUMN_WIDTH} colSpan={1} key={count}/>)
+				cells.unshift(<th width={TABLE_CONTROL_COLUMN_WIDTH} colSpan={1}/>)
 			}
 
 		}
+
+		console.log(cells)
 
 		return <thead><tr>{cells}</tr></thead>;
 	},
