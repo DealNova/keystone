@@ -31,6 +31,8 @@ class RelatedItemsListRow extends Component {
 		var fields = assign({}, this.props.item.fields);
 		var { columns } = this.props.refList;
 
+		console.log(this.props.columns, 'this.props.columns')
+
 		// console.log(columns, 'columns', fields, this.props.item)
 
 		// columns.forEach(column => {
@@ -47,6 +49,8 @@ class RelatedItemsListRow extends Component {
 			const column = columns.find(itemColumn => itemColumn.path == key) || {};
 			
 			// if relationship type then set id as value
+
+			console.log(values[key], fields[key], column, 'values[key], fields[key], column')
 
 			if(column.type == 'relationship') {
 				values[key] = fields[key].id;
