@@ -119,6 +119,9 @@ var ItemView = React.createClass({
 						const relationship = relationships[key];
 						const refList = listsByKey[relationship.ref];
 						const { currentList, params, relationshipData, drag } = this.props;
+
+						console.log(currentList, relationshipData)
+
 						return (
 							<RelatedItemsList
 								key={relationship.path}
