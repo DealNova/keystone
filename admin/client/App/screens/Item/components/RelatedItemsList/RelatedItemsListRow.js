@@ -31,7 +31,7 @@ class RelatedItemsListRow extends Component {
 		var fields = assign({}, this.props.item.fields);
 		var { columns } = this.props.refList;
 
-		console.log(columns, 'columns', fields)
+		console.log(columns, 'columns', fields, this.props.item)
 
 		columns.forEach(column => {
 			if(column.type == 'relationship') {
