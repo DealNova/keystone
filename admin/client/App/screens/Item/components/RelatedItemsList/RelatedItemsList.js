@@ -48,6 +48,7 @@ const RelatedItemsList = React.createClass({
 	getColumns () {
 		const { relationship, refList } = this.props;
 		const columns = refList.expandColumns(refList.defaultColumns);
+		console.log(columns, 'getColumns')
 		return columns.filter(i => i.path !== relationship.refPath);
 	},
 	loadItems () {
@@ -62,7 +63,7 @@ const RelatedItemsList = React.createClass({
 			);
 			return this.setState({ err });
 		}
-		this.props.dispatch(loadRelationshipItemData({ columns, refList, relatedItemId, relationship }));
+		this.props.dispatch(loadRelationshipItemData({ columns: refList.columns, refList, relatedItemId, relationship }));
 	},
 	renderItems () {
 		const tableBody = (this.isSortable()) ? (
