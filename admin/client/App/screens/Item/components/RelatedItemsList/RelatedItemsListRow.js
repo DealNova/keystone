@@ -52,7 +52,7 @@ class RelatedItemsListRow extends Component {
 
 			console.log(values[key], fields[key], column, 'values[key], fields[key], column')
 
-			if(column.type == 'relationship') {
+			if(column.field.type == 'relationship') {
 				values[key] = fields[key].id;
 			} else {
 				values[key] = fields[key];
