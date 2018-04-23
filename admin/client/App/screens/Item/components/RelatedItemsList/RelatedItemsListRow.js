@@ -22,7 +22,6 @@ class RelatedItemsListRow extends Component {
 		// if editMode is enabled prepopulate values
 		if(nextProps.editMode && !this.props.editMode) {
 			const { refList, item } = nextProps;
-
 			refList.loadItem(item.id, { drilldown: true }, (err, itemData) => {
 				if(!err) {
 					this.prepopulateInput(itemData.fields)

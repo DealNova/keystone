@@ -37,31 +37,19 @@ const ItemsRow = React.createClass({
 	componentWillReceiveProps (nextProps) {
 		// if editMode is enabled prepopulate values
 		if(nextProps.editMode && !this.props.editMode) {
-			this.prepopulateInput()
+
+			const { list, item } = nextProps;
+
+			list.loadItem(item.id, { drilldown: true }, (err, itemData) => {
+				if(!err) {
+					this.prepopulateInput(itemData.fields)
+				}
+			})
 		}
 	},
-	prepopulateInput () {
-		var values = {};
-
-		var fields = assign({}, this.props.item.fields);
-		var { columns } = this.props;
-
-		for ( var key in fields ) {
-
-			const column = columns.find(itemColumn => itemColumn.path == key) || {};
-			
-			// if relationship type then set id as value
-
-			if(column.type == 'relationship') {
-				values[key] = fields[key].id;
-			} else {
-				values[key] = fields[key];
-			}
-
-		}
-
+	prepopulateInput (fields) {
 		this.setState({
-			values: values
+			values: fields
 		})
 	},
 	handleChange (event) {
