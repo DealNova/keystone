@@ -13,11 +13,12 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 		complete (result) {
 			const translatedData = [];
 			const data = result.data;
-			console.log(
-				`CSV-Import: PapaParse detected ${data.length} items in the CSV file ${
-					fileData.originalname
-				}.`
-			);
+			console.log(data, 'hello')
+			// console.log(
+			// 	`CSV-Import: PapaParse detected ${data.length} items in the CSV file ${
+			// 		fileData.originalname
+			// 	}.`
+			// );
 			for (let i = 0; i < data.length; i += 1) {
 				const row = data[i];
 				const translatedRow = {};
