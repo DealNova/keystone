@@ -71,11 +71,11 @@ const parseCSV = (file, fileData, fieldData, callback) => {
 				if (emptyFields !== paths.length) {
 					translatedData.push(translatedRow);
 				} else {
-					console.log(
-						`CSV-Import: Removing a line due to it being empty. File: ${
-							fileData.originalname
-						}`
-					);
+					// console.log(
+					// 	`CSV-Import: Removing a line due to it being empty. File: ${
+					// 		fileData.originalname
+					// 	}`
+					// );
 				}
 			}
 			callback(translatedData);
@@ -144,16 +144,16 @@ const applyUpdate = (items, list, res, req) => {
 		cbCount -= 1;
 		if (cbCount === 0) {
 			res.status(status);
-			console.log(
-				`CSV-Import: ${items.length} items detected in the CSV file.`
-			);
-			console.log(`CSV-Import: ${updateCount} items updated.`);
-			console.log(`CSV-Import: ${createCount} items created.`);
-			console.log(`CSV-Import: ${updateErrorCount} update errors.`);
-			console.log(`CSV-Import: ${createErrorCount} create errors.`);
-			if (failedTasks.length > 0) {
-				console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
-			}
+			// console.log(
+			// 	`CSV-Import: ${items.length} items detected in the CSV file.`
+			// );
+			// console.log(`CSV-Import: ${updateCount} items updated.`);
+			// console.log(`CSV-Import: ${createCount} items created.`);
+			// console.log(`CSV-Import: ${updateErrorCount} update errors.`);
+			// console.log(`CSV-Import: ${createErrorCount} create errors.`);
+			// if (failedTasks.length > 0) {
+			// 	console.log(`CSV-Import: Failed tasks: ${failedTasks.toString()}.`);
+			// }
 			res.send({
 				items: items.length,
 				updateCount,
@@ -175,22 +175,22 @@ const applyUpdate = (items, list, res, req) => {
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					if (oldItem !== null && oldItem._id) {
-						console.log(
-							`CSV-Import: Error while updating ${
-								oldItem.id
-							}. Task ${taskID}. ${err.error}`
-						);
+						// console.log(
+						// 	`CSV-Import: Error while updating ${
+						// 		oldItem.id
+						// 	}. Task ${taskID}. ${err.error}`
+						// );
 						updateErrorCount += 1;
 					} else {
-						console.log(
-							`CSV-Import: Error while creating a new item. Task ${taskID}. ${
-								err.error
-							}`
-						);
+						// console.log(
+						// 	`CSV-Import: Error while creating a new item. Task ${taskID}. ${
+						// 		err.error
+						// 	}`
+						// );
 						createErrorCount += 1;
 					}
-					console.log('CSV-Import: Error object:', err);
-					console.log('CSV-Import: Data object:', newItem);
+					// console.log('CSV-Import: Error object:', err);
+					// console.log('CSV-Import: Data object:', newItem);
 					failedTasks.push(taskID);
 				}
 				onFinish();
