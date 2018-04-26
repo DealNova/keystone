@@ -79,7 +79,8 @@ class ImportButton extends React.Component {
 	};
 	handleOpen = e => {
 		e.preventDefault();
-		this.setState({ open: true });
+		// this.setState({ open: true });
+		this.fileImporter.open()
 	};
 
 	handleClose = () => {
@@ -88,26 +89,26 @@ class ImportButton extends React.Component {
 
 	componentDidMount () {
 		console.log(FlatfileImporter, 'flatfile-csv-importer')
-		console.log(this.state.currentList)
-		// var robotImporter = new FlatfileImporter('demo-account', {
-		// 	fields: [{
-		// 		label: 'Robot Name',
-		// 		key: 'name'
-		// 	}, {
-		// 		label: 'Shield Color',
-		// 		key: 'shield-color',
-		// 		validator: /^[a-zA-Z]+$/
-		// 	}, {
-		// 		label: 'Robot Helmet Style',
-		// 		key: 'helmet-style',
-		// 	}, {
-		// 		label: 'Call Sign',
-		// 		key: 'sign',
-		// 		alternates: ['nickname', 'wave'],
-		// 		validator: /^\w{4}$/
-		// 	}],
-		// 	type: 'Robot'
-		// })
+		console.log(this.state.currentList)		  
+
+		const { currentList } = this.state;
+
+		flatFileFields = currentList.columns.filter(column => column.type == 'field').map(
+			column => ({
+				label: column.title,
+				key: column.path,
+				validators: [
+					column.fiels.required ? {
+						validate: 'required'
+					}: {}
+				]
+			})
+		)
+
+		this.fileImporter = new FlatfileImporter('83713b00-0624-11e8-8286-29e8b9a60823', {
+			fields: flatFileFields,
+			type: 'csv'
+		})
 		  
 	}
 
