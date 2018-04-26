@@ -6,6 +6,7 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
+import FlatfileImporter from 'flatfile-csv-importer';
 
 class ImportButton extends React.Component {
 	constructor(props) {
@@ -85,6 +86,10 @@ class ImportButton extends React.Component {
 	handleClose = () => {
 		this.setState({ open: false });
 	};
+
+	componentDidMount () {
+		console.log(this.state.currentList, 'this.state.currentList')
+	}
 
 	render() {
 		if (this.state.currentList !== null && !this.state.currentList.csvImport) {
