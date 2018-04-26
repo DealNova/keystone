@@ -233,6 +233,9 @@ const applyUpdate = (items, list, res, req) => {
 		}
 	};
 	const updateWrapper = (oldItem, newItem, taskID) => {
+
+		console.log(oldItem, newItem, 'oldItem, newItem')
+
 		list.updateItem(
 			oldItem !== null ? oldItem : new list.model(),
 			new FormData(newItem),
@@ -241,7 +244,6 @@ const applyUpdate = (items, list, res, req) => {
 				user: req.user,
 			},
 			function (err) {
-				console.log(err, 'err')
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					if (oldItem !== null && oldItem._id) {
