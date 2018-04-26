@@ -26,9 +26,12 @@ class ImportButton extends React.Component {
 		};
 	}
 
-	applyCSV = () => {
+	applyCSV = (csvData, fileImporter) => {
 		const formData = new FormData();
-		formData.append("csv", this.state.fileData);
+		formData.append("csv", JSON.stringify(csvData));
+		
+		console.log(csvData, 'csvData')
+
 		xhr(
 			{
 				url: `${Keystone.adminPath}/api/${this.state.currentList.path}/import`,
@@ -37,6 +40,9 @@ class ImportButton extends React.Component {
 				body: formData
 			},
 			(err, resp, data) => {
+
+				fileImporter.displaySuccess();
+
 				const responseData = JSON.parse(resp.body);
 				this.setState({
 					postDialog: true,
@@ -112,11 +118,7 @@ class ImportButton extends React.Component {
 
 		this.fileImporter.on('complete', (users, meta) => {
 			this.fileImporter.displayLoader()
-		  
-			setTimeout(() => {
-				this.fileImporter.displaySuccess()
-				console.log(users, meta)
-			}, 500)
+			this.applyCSV(users, this.fileImporter)
 		})
 		  
 	}
