@@ -5,7 +5,73 @@ const utils = require('keystone-utils');
 
 const parseCSV = (fileData, fieldData, callback) => {
 
-	console.log(fileData, 'fileData')
+	const data = fileData;
+	const translatedData = [];
+	// console.log(
+	// 	`CSV-Import: PapaParse detected ${data.length} items in the CSV file ${
+	// 		fileData.originalname
+	// 	}.`
+	// );
+	for (let i = 0; i < data.length; i += 1) {
+		const row = data[i];
+		const translatedRow = {};
+		const rowKeys = Object.keys(row);
+		let emptyFields = 0;
+		const paths = [];
+		const titleMap = fieldData.titleMap;
+		const isRelationShip = fieldData.isRelationship;
+		for (let j = 0; j < rowKeys.length; j += 1) {
+			const title = rowKeys[j];
+			// In case of missing title configuration, use the titles themselves as paths.
+			const path = titleMap[title] || title;
+			paths.push(path);
+			translatedRow[path]
+				= row[title] !== '' || typeof row[title] === 'undefined'
+					? row[title]
+					: undefined;
+			// Count the number of empty properties.
+			if (typeof translatedRow[path] === 'undefined') {
+				emptyFields += 1;
+			}
+
+			// Check if the field is a relationship, and fix the data correspondingly
+			if (typeof isRelationShip[path] !== 'undefined') {
+				const relationshipLabel = translatedRow[path];
+				const realItem = isRelationShip[path][relationshipLabel];
+				let realID = null;
+				if (typeof realItem !== 'undefined') {
+					realID = realItem.id;
+				}
+				if (realID === null) {
+					console.log(
+						`WARNING! References to other models will be omitted because of missing records for ${path}/${relationshipLabel}!`
+					);
+				} else {
+					console.log(
+						`CSV-Import: ${path}/${relationshipLabel} detected to be a relationship. Real ID: ${realID}.`
+					);
+				}
+				translatedRow[path] = realID;
+			}
+			// Make sure the ID has the correct path if exists
+			if (typeof translatedRow.id !== 'undefined') {
+				translatedRow._id = translatedRow.id;
+				delete translatedRow.id;
+			}
+		}
+		// If all the properties are empty, ignore the line.
+		// CSV files commonly leave empty lines in the end of the document
+		if (emptyFields !== paths.length) {
+			translatedData.push(translatedRow);
+		} else {
+			// console.log(
+			// 	`CSV-Import: Removing a line due to it being empty. File: ${
+			// 		fileData.originalname
+			// 	}`
+			// );
+		}
+	}
+	callback(translatedData);
 
 	// Papa.parse(file, {
 	// 	header: true,
@@ -235,7 +301,7 @@ module.exports = function (req, res) {
 	console.log(req.files)
 	console.log(req.body)
 
-	const fileData = req.body.csv;
+	const fileData = JSON.parse(req.body.csv);
 	const fieldData = { titleMap: {}, isRelationship: {} };
 	let list = req.list;
 	const modelOverride = req.list.options.csvImportModel;
