@@ -31,7 +31,6 @@ module.exports = React.createClass({
 					{this.props.headComponents}
 					<GoogleFont typography={typography} />
 					<TypographyStyle typography={typography} />
-					<script src="https://unpkg.com/flatfile-csv-importer/build/dist/index.min.js"></script>
 					{css}
 				</head>
 				<body>

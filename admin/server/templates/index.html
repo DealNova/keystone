@@ -16,8 +16,9 @@
     <script>
       var Keystone = <%- JSON.stringify(keystone) %>;
     </script>
-<%# Old jQuery, editor and Cloudinary scripts %>
+<%# Old jQuery, editor, flatFile and Cloudinary scripts %>
     <script src="<%= adminPath %>/js/lib/jquery/jquery-1.10.2.min.js"></script>
+    <script src="https://unpkg.com/flatfile-csv-importer/build/dist/index.min.js"></script>
 <% if (fieldTypes.wysiwyg) { -%>
     <script src="<%= adminPath %>/js/lib/tinymce/tinymce.min.js"></script>
 <% if (cloudinaryScript) { -%>
