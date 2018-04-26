@@ -135,6 +135,8 @@ class ImportButton extends React.Component {
 
 					for( let key in row ) {
 
+						console.log(key, row[key])
+
 						const selectedColumn = currentList.columns.find(column => column.path == key);
 
 						if(selectedColumn && selectedColumn.field) {
