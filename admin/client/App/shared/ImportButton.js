@@ -6,6 +6,7 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
+import moment from 'moment';
 
 class ImportButton extends React.Component {
 	constructor(props) {
@@ -124,11 +125,40 @@ class ImportButton extends React.Component {
 			type: 'csv'
 		})
 
-		this.fileImporter.on('complete', (users, meta) => {
+		this.fileImporter.on('complete', (data, meta) => {
 			this.fileImporter.displayLoader()
-			this.applyCSV(users, this.fileImporter)
+
+			const populatedData = data.map(
+				row => {
+
+					let updatedRow = {}
+
+					for( let key in row ) {
+
+						const selectedColumn = currentList.columns.find(column => column.path == key);
+
+						if(selectedColumn && selectedColumn.field) {
+							
+							switch(selectedColumn.field.type) {
+								case 'date':
+									updatedRow[key] = moment(row[key]).format('YYYY-MM-DD')
+									break;
+							}
+
+						} else {
+							updatedRow[key] = row[key]
+						}
+
+					}
+
+					return updatedRow;
+
+				}
+			)
+
+			this.applyCSV(populatedData, this.fileImporter)
 		})
-		  
+
 	}
 
 	render() {
