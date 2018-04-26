@@ -287,6 +287,9 @@ const applyUpdate = (items, list, res, req) => {
 const startImport = (fileData, fieldData, list, req, res) => {
 	parseCSV(fileData, fieldData, translatedData => {
 		fixDataPaths(translatedData, fieldData, list, req).then(itemList => {
+
+			console.log(itemList, 'itemList')
+
 			applyUpdate(itemList, list, res, req);
 		});
 	});
@@ -297,9 +300,6 @@ module.exports = function (req, res) {
 	if (!keystone.security.csrf.validate(req)) {
 		return res.apiError(403, 'invalid csrf');
 	}
-
-	console.log(req.files)
-	console.log(req.body)
 
 	const fileData = JSON.parse(req.body.csv);
 	const fieldData = { titleMap: {}, isRelationship: {} };
