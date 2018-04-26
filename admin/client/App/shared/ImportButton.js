@@ -107,6 +107,11 @@ class ImportButton extends React.Component {
 				validators: [
 					column.field && column.field.required ? {
 						validate: 'required'
+					}: {},
+					column.field && column.field.type == 'date' ? {
+						validate: 'regex_matches',
+						regex: /[0-9]{4}-[0-9]{2}-[0-9]{2}/,
+						error: 'Please provide date in this format YYYY-MM-DD'
 					}: {}
 				]
 			})
@@ -134,8 +139,6 @@ class ImportButton extends React.Component {
 					let updatedRow = {}
 
 					for( let key in row ) {
-
-						console.log(key, row[key])
 
 						const selectedColumn = currentList.columns.find(column => column.path == key);
 
