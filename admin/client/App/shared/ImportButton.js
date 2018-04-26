@@ -6,7 +6,9 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
-const flatFile = require('flatfile-csv-importer');
+// import FlatfileImporter from 'flatfile-csv-importer';
+
+const FlatfileImporter = require('flatfile-csv-importer')
 
 class ImportButton extends React.Component {
 	constructor(props) {
@@ -88,8 +90,7 @@ class ImportButton extends React.Component {
 	};
 
 	componentDidMount () {
-		console.log(this.state.currentList, 'this.state.currentList')
-		console.log(flatFile)
+		console.log(FlatfileImporter, 'flatfile-csv-importer')
 	}
 
 	render() {
