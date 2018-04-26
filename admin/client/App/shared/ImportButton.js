@@ -6,7 +6,7 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
-import FlatfileImporter from 'flatfile-csv-importer';
+// import FlatfileImporter from 'flatfile-csv-importer';
 
 class ImportButton extends React.Component {
 	constructor(props) {
