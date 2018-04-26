@@ -145,6 +145,8 @@ class ImportButton extends React.Component {
 								case 'date':
 									updatedRow[key] = moment(row[key]).format('YYYY-MM-DD')
 									break;
+								default:
+									updatedRow[key] = row[key]
 							}
 
 						} else {
