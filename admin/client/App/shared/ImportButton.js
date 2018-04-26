@@ -98,7 +98,7 @@ class ImportButton extends React.Component {
 				label: column.title,
 				key: column.path,
 				validators: [
-					column.fiels.required ? {
+					column.field && column.field.required ? {
 						validate: 'required'
 					}: {}
 				]
@@ -108,6 +108,15 @@ class ImportButton extends React.Component {
 		this.fileImporter = new FlatfileImporter('83713b00-0624-11e8-8286-29e8b9a60823', {
 			fields: flatFileFields,
 			type: 'csv'
+		})
+
+		this.fileImporter.on('complete', function(users, meta) {
+			this.fileImporter.displayLoader()
+		  
+			setTimeout(function() {
+				this.fileImporter.displaySuccess()
+				console.log(users, meta)
+			}, 500)
 		})
 		  
 	}
