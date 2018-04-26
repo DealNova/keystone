@@ -44,7 +44,6 @@
     "express-request-language": "1.1.12",
     "express-session": "1.15.6",
     "expression-match": "0.0.17",
-    "flatfile-csv-importer": "^0.1.9",
     "form-data": "^2.3.2",
     "fs-extra": "1.0.0",
     "glamor": "^2.20.25",
