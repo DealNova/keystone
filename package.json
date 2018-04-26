@@ -132,8 +132,7 @@
   },
   "browserify": {
     "transform": [
-      "browserify-shim",
-      ["babelify", { "presets": ["react", "es2015", "stage-2"] }]
+      "browserify-shim"
     ]
   },
   "browserify-shim": {
