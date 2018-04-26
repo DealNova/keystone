@@ -244,6 +244,9 @@ const applyUpdate = (items, list, res, req) => {
 				user: req.user,
 			},
 			function (err) {
+
+				console.log(err, 'err')
+
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					if (oldItem !== null && oldItem._id) {
