@@ -110,10 +110,10 @@ class ImportButton extends React.Component {
 			type: 'csv'
 		})
 
-		this.fileImporter.on('complete', function(users, meta) {
+		this.fileImporter.on('complete', (users, meta) => {
 			this.fileImporter.displayLoader()
 		  
-			setTimeout(function() {
+			setTimeout(() => {
 				this.fileImporter.displaySuccess()
 				console.log(users, meta)
 			}, 500)
