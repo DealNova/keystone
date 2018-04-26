@@ -6,11 +6,11 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
-// import FlatfileImporter from 'flatfile-csv-importer';
+import FlatfileImporter from 'flatfile-csv-importer';
 
-import('flatfile-csv-importer')
-  .then(module => module.default)
-  .catch(err => console.error(`Chunk loading failed, ${err}`))
+// import('flatfile-csv-importer')
+//   .then(module => module.default)
+//   .catch(err => console.error(`Chunk loading failed, ${err}`))
 
 class ImportButton extends React.Component {
 	constructor(props) {
