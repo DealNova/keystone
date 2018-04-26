@@ -241,6 +241,7 @@ const applyUpdate = (items, list, res, req) => {
 				user: req.user,
 			},
 			function (err) {
+				console.log(err, 'err')
 				if (err) {
 					status = err.error === 'validation errors' ? 400 : 500;
 					if (oldItem !== null && oldItem._id) {
@@ -287,9 +288,6 @@ const applyUpdate = (items, list, res, req) => {
 const startImport = (fileData, fieldData, list, req, res) => {
 	parseCSV(fileData, fieldData, translatedData => {
 		fixDataPaths(translatedData, fieldData, list, req).then(itemList => {
-
-			console.log(itemList, 'itemList')
-
 			applyUpdate(itemList, list, res, req);
 		});
 	});
