@@ -94,7 +94,11 @@ module.exports = function (opts) {
 			b = browserify(file, opts);
 		}
 
-		b.transform(babelify);
+		b.transform(babelify.configure({
+			plugins: ["transform-object-assign"],
+			presets: ["react", "es2015", "stage-2"]
+		  }
+		));
 		b.exclude('FieldTypes');
 		packages.forEach(function (i) {
 			b.exclude(i);
