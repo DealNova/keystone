@@ -93,7 +93,7 @@ class ImportButton extends React.Component {
 
 		const { currentList } = this.state;
 
-		flatFileFields = currentList.columns.filter(column => column.type == 'field').map(
+		const flatFileFields = currentList.columns.filter(column => column.type == 'field').map(
 			column => ({
 				label: column.title,
 				key: column.path,
