@@ -6,7 +6,7 @@ import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 const xhr = require("xhr");
 import { connect } from "react-redux";
-import FlatfileImporter from 'flatfile-csv-importer';
+const FlatfileImporter = require('flatfile-csv-importer');
 
 // import('flatfile-csv-importer')
 //   .then(module => module.default)
