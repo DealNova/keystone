@@ -1,4 +1,4 @@
-require('babel-polyfill');
+require('@babel/polyfill');
 
 import demand from 'must';
 import { evalQueryParams, updateParams, parseQueryParams, urlUpdate } from '../queryParamsSagas';
@@ -176,6 +176,12 @@ describe('<List /> query param sagas', function () {
 		});
 
 		describe('If the query and the cached query are the same', function () {
+			before(() => {
+				global.Keystone = {
+					adminPath: '/keystone',
+				};
+			});
+
 			it('puts a QUERY HAS NOT CHANGED action to the store', function () {
 				const generator = evalQueryParams();
 				const pathname = '/keystone/Dictators';

@@ -26,6 +26,8 @@ import { deleteItem } from '../actions';
 
 import { upcase } from '../../../../utils/string';
 
+import { ASYNC_FIELD_LOADING, ASYNC_FIELD_LOADED } from '../constants';
+
 function getNameFromData (data) {
 	if (typeof data === 'object') {
 		if (typeof data.first === 'string' && typeof data.last === 'string') {
@@ -38,11 +40,16 @@ function getNameFromData (data) {
 }
 
 function smoothScrollTop () {
-	if (document.body.scrollTop || document.documentElement.scrollTop) {
-		window.scrollBy(0, -50);
-		var timeOut = setTimeout(smoothScrollTop, 20);
-	}	else {
-		clearTimeout(timeOut);
+	var position = window.scrollY || window.pageYOffset;
+	var speed = position / 10;
+
+	if (position > 1) {
+		var newPosition = position - speed;
+
+		window.scrollTo(0, newPosition);
+		window.requestAnimationFrame(smoothScrollTop);
+	} else {
+		window.scrollTo(0, 0);
 	}
 }
 
@@ -53,10 +60,19 @@ var EditForm = React.createClass({
 		list: React.PropTypes.object,
 	},
 	getInitialState () {
+		var hasAsyncFields = !!this.props.list.columns.find(col => {
+			if (col.field && col.field.type === 'relationship') {
+				var fieldData = this.props.data.fields[col.field.path];
+				return col.field.many ? fieldData.length > 0 : fieldData;
+			} else {
+				return false;
+			}
+		});
 		return {
 			values: assign({}, this.props.data.fields),
 			confirmationDialog: null,
-			loading: false,
+			loading: hasAsyncFields,
+			hasLoaded: !hasAsyncFields,
 			lastValues: null, // used for resetting
 			focusFirstField: !this.props.list.nameField && !this.props.list.nameFieldIsFormHeader,
 		};
@@ -79,12 +95,35 @@ var EditForm = React.createClass({
 				props.isValid = false;
 			}
 		}
-		props.value = this.state.values[field.path];
+		props.value = this.state.values[field.path] === undefined ? field.defaultValue : this.state.values[field.path];
 		props.values = this.state.values;
 		props.onChange = this.handleChange;
 		props.mode = 'edit';
+
+		// add a callback on RelationshipField element props to call when values are fully loaded
+		if (props.type === 'relationship' && !this.state.hasLoaded) {
+			if (props.many && props.value.length > 0 || !props.many && !!props.value) {
+				this.registerAsyncField(field.path);
+				props.onValuesLoaded = this.onAsyncFieldValuesLoaded;
+			}
+		}
 		return props;
 	},
+
+	registerAsyncField (fieldName) {
+		this.__asyncFields = this.__asyncFields || {};
+		this.__asyncFields[fieldName] = this.__asyncFields[fieldName] || ASYNC_FIELD_LOADING;
+	},
+
+	onAsyncFieldValuesLoaded (fieldName) {
+		this.__asyncFields[fieldName] = ASYNC_FIELD_LOADED;
+		var isLoadingComplete = Object.values(this.__asyncFields).filter(asyncStatus => asyncStatus !== ASYNC_FIELD_LOADED).length === 0;
+		this.setState({
+			loading: !isLoadingComplete,
+			hasLoaded: isLoadingComplete
+		});
+	},
+
 	handleChange (event) {
 		const values = assign({}, this.state.values);
 
@@ -124,7 +163,18 @@ var EditForm = React.createClass({
 	updateItem () {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
+
+		// Fix for Safari where XHR form submission fails when input[type=file] is empty
+		// https://stackoverflow.com/questions/49614091/safari-11-1-ajax-xhr-form-submission-fails-when-inputtype-file-is-empty
+		$(editForm).find("input[type='file']").each(function () {
+			if ($(this).get(0).files.length === 0) { $(this).prop('disabled', true); }
+		});
+
 		const formData = new FormData(editForm);
+
+		$(editForm).find("input[type='file']").each(function () {
+			if ($(this).get(0).files.length === 0) { $(this).prop('disabled', false); }
+		});
 
 		// Show loading indicator
 		this.setState({
@@ -260,8 +310,12 @@ var EditForm = React.createClass({
 			return null;
 		}
 
-		const { loading } = this.state;
-		const loadingButtonText = loading ? 'Saving' : 'Save';
+		const { loading, hasLoaded } = this.state;
+		const loadingButtonText = loading
+			? hasLoaded
+				? 'Saving'
+				: 'Loading'
+			: 'Save';
 
 		// Padding must be applied inline so the FooterBar can determine its
 		// innerHeight at runtime. Aphrodite's styling comes later...
